@@ -1277,7 +1277,7 @@ function renderEarnings() {
         : e.trend === 'bajista' ? '&#9660; Tendencia BAJISTA'
         : '&#9644; Tendencia NEUTRAL';
       const tvUrl = 'https://www.tradingview.com/chart/?symbol=NASDAQ:' + e.ticker;
-      html += '<div class="earn-card' + (isExp?' expanded':'') + '" onclick="toggleEarn('' + e.ticker + '')">'
+      html += '<div class="earn-card' + (isExp?' expanded':'') + '" onclick="toggleEarn(\'' + e.ticker + '\')">'
         + '<div class="earn-card-top">'
         + '<div><div class="earn-ticker">' + e.ticker + '</div><div class="earn-name">' + e.name + '</div></div>'
         + '<span class="earn-time-badge ' + timeCls + '">' + timeTxt + '</span>'
