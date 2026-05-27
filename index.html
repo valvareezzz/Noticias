@@ -108,35 +108,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,san
 .earn-importance{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t3);margin-top:.5rem}
 .earn-imp-dot{width:8px;height:8px;border-radius:50%}
 .earn-imp-h{background:var(--red)}.earn-imp-m{background:var(--amb)}.earn-imp-l{background:var(--grn)}
-
-/* ── EARN CHART PANEL ── */
-.earn-chart-section{margin-top:14px;padding-top:14px;border-top:1px solid var(--b)}
-.earn-chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
-.earn-chart-title{font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em}
-.earn-consensus{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.earn-cons-label{font-size:11px;color:var(--t3)}
-.earn-cons-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;width:120px;gap:1px}
-.cons-buy{background:var(--grn)}.cons-hold{background:var(--amb)}.cons-sell{background:var(--red)}
 .earn-cons-verdict{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px}
 .verdict-buy{background:var(--gbg);color:var(--grn);border:1px solid rgba(63,185,80,.3)}
 .verdict-hold{background:var(--abg);color:var(--amb);border:1px solid rgba(210,153,34,.3)}
 .verdict-sell{background:var(--rbg);color:var(--red);border:1px solid rgba(248,81,73,.3)}
-.earn-target{font-size:12px;color:var(--t2)}
-.earn-target strong{color:var(--t)}
-.earn-reactions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.earn-react-item{background:var(--sf3);border-radius:5px;padding:.35rem .65rem;text-align:center}
-.earn-react-q{font-size:9px;color:var(--t3);margin-bottom:2px}
-.earn-react-chg{font-size:12px;font-weight:700}
-.earn-react-up{color:var(--grn)}.earn-react-dn{color:var(--red)}
-.earn-tv-wrap{border-radius:8px;overflow:hidden;border:1px solid var(--b2)}
-.earn-tv-tabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
-.earn-tv-tab{font-size:11px;font-weight:600;padding:4px 12px;border-radius:5px;border:1px solid var(--b2);background:var(--sf2);color:var(--t2);cursor:pointer;transition:all .15s}
-.earn-tv-tab:hover{color:var(--t);background:var(--sf3)}
-.earn-tv-tab.on{background:var(--blu);border-color:var(--blu);color:#0d1117}
-.earn-trend-box{display:flex;align-items:center;gap:8px;padding:.6rem .9rem;border-radius:6px;margin-bottom:10px;font-size:12px}
+.earn-trend-box{display:flex;align-items:center;gap:8px;padding:.6rem .9rem;border-radius:6px;font-size:12px;font-weight:600}
 .trend-alcista{background:var(--gbg);border:1px solid rgba(63,185,80,.3);color:var(--grn)}
 .trend-bajista{background:var(--rbg);border:1px solid rgba(248,81,73,.3);color:var(--red)}
 .trend-neutral{background:var(--abg);border:1px solid rgba(210,153,34,.3);color:var(--amb)}
+
+
 .hright{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .clock{font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums;min-width:68px;text-align:right}
 .btn{display:flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;border-radius:6px;border:1px solid var(--b2);background:var(--sf2);color:var(--t2);cursor:pointer;transition:all .15s;font-weight:500}
@@ -1234,7 +1215,6 @@ const EARNINGS = [
 ];
 
 let earnExpanded = new Set();
-let earnActiveInterval = {};
 
 function getConsensusVerdict(c) {
   if (!c) return {cls:'verdict-hold', txt:'Sin datos'};
@@ -1248,16 +1228,13 @@ function getConsensusVerdict(c) {
 function renderEarnings() {
   const days = [...new Set(EARNINGS.map(e => e.day))];
   let html = '';
-
   days.forEach(day => {
     const items = EARNINGS.filter(e => e.day === day);
     const isToday = day === 'Hoy';
-
     html += '<div class="earn-week">'
       + '<div class="earn-week-title">' + day
       + (isToday ? ' <span style="font-size:10px;background:var(--gbg);color:var(--grn);padding:2px 8px;border-radius:99px;font-weight:700;margin-left:8px">HOY</span>' : '')
       + '</div><div class="earn-grid">';
-
     items.forEach(e => {
       const isExp = earnExpanded.has(e.ticker);
       const impCls = e.importance === 'h' ? 'earn-imp-h' : e.importance === 'm' ? 'earn-imp-m' : 'earn-imp-l';
@@ -1272,69 +1249,17 @@ function renderEarnings() {
         'Banca':'background:var(--abg);color:var(--amb)',
       };
       const sectorStyle = sectorColors[e.sector] || 'background:var(--sf3);color:var(--t2)';
-
-      // Consensus
-      let consensusHtml = '';
-      if (e.consensus) {
-        const total = e.consensus.buy + e.consensus.hold + e.consensus.sell;
-        const buyW = Math.round((e.consensus.buy/total)*100);
-        const holdW = Math.round((e.consensus.hold/total)*100);
-        const sellW = 100 - buyW - holdW;
-        const verdict = getConsensusVerdict(e.consensus);
-        consensusHtml =
-          '<div class="earn-consensus">'
-          + '<span class="earn-cons-label">Analistas (' + total + '):</span>'
-          + '<div class="earn-cons-bar">'
-          + '<div class="cons-buy" style="width:' + buyW + '%"></div>'
-          + '<div class="cons-hold" style="width:' + holdW + '%"></div>'
-          + '<div class="cons-sell" style="width:' + sellW + '%"></div>'
-          + '</div>'
-          + '<span class="earn-cons-verdict ' + verdict.cls + '">' + verdict.txt + '</span>'
-          + (e.target ? '<span class="earn-target">Precio objetivo: <strong>' + e.target + '</strong></span>' : '')
-          + '</div>';
-      }
-
-      // Reactions history
-      let reactHtml = '';
-      if (e.reactions && e.reactions.length) {
-        reactHtml = '<div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Reaccion historica al dia siguiente del earnings</div>'
-          + '<div class="earn-reactions">'
-          + e.reactions.map(r => {
-              const up = r.chg.startsWith('+');
-              return '<div class="earn-react-item">'
-                + '<div class="earn-react-q">' + r.q + '</div>'
-                + '<div class="earn-react-chg ' + (up?'earn-react-up':'earn-react-dn') + '">' + r.chg + '</div>'
-                + '</div>';
-            }).join('')
-          + '</div>';
-      }
-
-      // Trend box
+      const verdict = e.consensus ? getConsensusVerdict(e.consensus) : null;
+      const total = e.consensus ? e.consensus.buy + e.consensus.hold + e.consensus.sell : 0;
+      const buyW = total ? Math.round((e.consensus.buy/total)*100) : 0;
+      const holdW = total ? Math.round((e.consensus.hold/total)*100) : 0;
+      const sellW = total ? 100 - buyW - holdW : 0;
       const trendCls = e.trend === 'alcista' ? 'trend-alcista' : e.trend === 'bajista' ? 'trend-bajista' : 'trend-neutral';
-      const trendTxt = e.trend === 'alcista' ? '&#9650; Tendencia tecnica: ALCISTA — precio por encima de medias clave'
-        : e.trend === 'bajista' ? '&#9660; Tendencia tecnica: BAJISTA — precio por debajo de medias clave'
-        : '&#9644; Tendencia tecnica: NEUTRAL — en consolidacion';
-
-      // Chart section
-      const chartId = 'tv-' + e.ticker;
-      const chartHtml = isExp ? '<div class="earn-chart-section">'
-        + '<div class="earn-chart-header">'
-        + '<span class="earn-chart-title">&#128200; Grafico ' + e.ticker + ' — TradingView</span>'
-        + consensusHtml
-        + '</div>'
-        + '<div class="earn-trend-box ' + trendCls + '">' + trendTxt + '</div>'
-        + (reactHtml ? reactHtml : '')
-        + '<div class="earn-tv-tabs">'
-        + ['1D','1W','1M','3M','1Y'].map(tf =>
-            '<button class="earn-tv-tab' + (tf==='1D'?' on':'') + '" onclick="event.stopPropagation();switchChart(\'' + e.ticker + '\',\'' + tf + '\',this)">' + tf + '</button>'
-          ).join('')
-        + '</div>'
-        + '<div class="earn-tv-wrap" id="' + chartId + '">'
-        + buildTVChart(e.ticker, '1D')
-        + '</div>'
-        + '</div>' : '';
-
-      html += '<div class="earn-card' + (isExp?' expanded':'') + '" onclick="toggleEarn(\'' + e.ticker + '\')">'
+      const trendTxt = e.trend === 'alcista' ? '&#9650; Tendencia ALCISTA'
+        : e.trend === 'bajista' ? '&#9660; Tendencia BAJISTA'
+        : '&#9644; Tendencia NEUTRAL';
+      const tvUrl = 'https://www.tradingview.com/chart/?symbol=NASDAQ:' + e.ticker;
+      html += '<div class="earn-card' + (isExp?' expanded':'') + '" onclick="toggleEarn('' + e.ticker + '')">'
         + '<div class="earn-card-top">'
         + '<div><div class="earn-ticker">' + e.ticker + '</div><div class="earn-name">' + e.name + '</div></div>'
         + '<span class="earn-time-badge ' + timeCls + '">' + timeTxt + '</span>'
@@ -1352,36 +1277,28 @@ function renderEarnings() {
         + '<div class="earn-detail">'
         + '<div class="earn-detail-text">' + e.desc + '</div>'
         + '<div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;margin-top:8px">&#127919; Que vigilar</div>'
-        + '<div class="earn-detail-text" style="background:var(--sf3);padding:.6rem .8rem;border-radius:6px;border-left:3px solid var(--blu);margin-bottom:0">' + e.watch + '</div>'
-        + chartHtml
+        + '<div class="earn-detail-text" style="background:var(--sf3);padding:.6rem .8rem;border-radius:6px;border-left:3px solid var(--blu);margin-bottom:10px">' + e.watch + '</div>'
+        + (verdict ? '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">'
+          + '<span style="font-size:11px;color:var(--t3)">Analistas (' + total + '):</span>'
+          + '<div style="display:flex;height:6px;border-radius:3px;overflow:hidden;width:100px;gap:1px"><div style="background:var(--grn);width:' + buyW + '%"></div><div style="background:var(--amb);width:' + holdW + '%"></div><div style="background:var(--red);width:' + sellW + '%"></div></div>'
+          + '<span class="earn-cons-verdict ' + verdict.cls + '">' + verdict.txt + '</span>'
+          + (e.target ? '<span style="font-size:12px;color:var(--t2)">Objetivo: <strong style="color:var(--t)">' + e.target + '</strong></span>' : '')
+          + '</div>' : '')
+        + '<div class="earn-trend-box ' + trendCls + '" style="margin-bottom:10px">' + trendTxt + '</div>'
+        + (e.reactions ? '<div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Reaccion historica</div>'
+          + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">'
+          + e.reactions.map(r => '<div style="background:var(--sf3);border-radius:5px;padding:.35rem .65rem;text-align:center"><div style="font-size:9px;color:var(--t3);margin-bottom:2px">' + r.q + '</div><div style="font-size:12px;font-weight:700;color:' + (r.chg.startsWith('+') ? 'var(--grn)' : 'var(--red)') + '">' + r.chg + '</div></div>').join('')
+          + '</div>' : '')
+        + '<a href="' + tvUrl + '" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:7px;background:var(--sf3);border:1px solid var(--b2);color:var(--t);font-size:12px;font-weight:600;padding:8px 16px;border-radius:7px;text-decoration:none">&#128200; Ver grafico en TradingView &#8599;</a>'
         + '</div>'
         + '</div>';
     });
-
     html += '</div></div>';
   });
-
   document.getElementById('earn-content').innerHTML = html;
 }
 
-function buildTVChart(ticker, timeframe) {
-  const tfMap = {'1D':'D','1W':'W','1M':'M','3M':'3M','1Y':'12M'};
-  const tv_tf = tfMap[timeframe] || 'D';
-  return '<iframe src="https://www.tradingview.com/widgetsnext/embed/single-quote/?symbol=' + ticker
-    + '&interval=' + tv_tf
-    + '&theme=dark&style=1&locale=es&toolbar_bg=%23161c24&enable_publishing=false&hide_top_toolbar=false&save_image=false&container_id=tv_' + ticker + '_' + tv_tf + '" '
-    + 'style="width:100%;height:420px;border:none;display:block;border-radius:6px" '
-    + 'allowtransparency="true" scrolling="no" frameborder="0"></iframe>';
-}
 
-function switchChart(ticker, tf, btn) {
-  const wrap = document.getElementById('tv-' + ticker);
-  if (!wrap) return;
-  wrap.innerHTML = buildTVChart(ticker, tf);
-  const tabs = wrap.parentElement.querySelectorAll('.earn-tv-tab');
-  tabs.forEach(t => t.classList.remove('on'));
-  btn.classList.add('on');
-}
 
 function toggleEarn(ticker) {
   if (earnExpanded.has(ticker)) earnExpanded.delete(ticker);
