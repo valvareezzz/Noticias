@@ -297,6 +297,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,san
 .ld{width:5px;height:5px;border-radius:50%;background:var(--sf3)}
 .ld.on{background:var(--blu)}
 .gchev{font-size:11px;color:var(--t3);margin-left:auto;transition:transform .15s}
+.strat-card{background:var(--sf);border:1px solid var(--b);border-radius:12px;overflow:hidden;transition:all .15s;cursor:pointer}
+.strat-card:hover{border-color:var(--b2)}
+.strat-card.open{border-color:var(--b2)}
+.strat-head{padding:1rem 1.1rem}
+.strat-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.strat-name{font-size:14px;font-weight:700;color:var(--t);flex:1}
+.strat-badges{display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0}
+.strat-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:3px}
+.sb-trend{background:var(--gbg);color:var(--grn)}
+.sb-rev{background:var(--rbg);color:var(--red)}
+.sb-break{background:var(--bbg);color:var(--blu)}
+.sb-range{background:var(--abg);color:var(--amb)}
+.sb-scalp{background:var(--pbg);color:var(--pur)}
+.sb-swing{background:rgba(45,212,191,.1);color:#4de0cc}
+.sb-pos{background:rgba(255,165,0,.1);color:#ffa500}
+.strat-desc{font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:8px}
+.strat-tags{display:flex;gap:5px;flex-wrap:wrap}
+.strat-tag{font-size:10px;font-weight:500;padding:2px 7px;border-radius:3px;background:var(--sf3);color:var(--t3)}
+.strat-body{display:none;padding:0 1.1rem 1.1rem;border-top:1px solid var(--b)}
+.strat-card.open .strat-body{display:block}
+.strat-sec{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin:.9rem 0 .4rem}
+.strat-step{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.strat-step-n{width:22px;height:22px;border-radius:50%;background:var(--blu);color:#0d1117;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.strat-step-t{font-size:13px;color:var(--t2);line-height:1.55;flex:1}
+.strat-box{border-radius:6px;padding:.65rem .9rem;font-size:12px;line-height:1.6;margin-bottom:6px}
+.strat-box.green{background:var(--gbg);border-left:3px solid var(--grn);color:var(--grn)}
+.strat-box.red{background:var(--rbg);border-left:3px solid var(--red);color:var(--red)}
+.strat-box.blue{background:var(--bbg);border-left:3px solid var(--blu);color:var(--t2)}
+.strat-box.amb{background:var(--abg);border-left:3px solid var(--amb);color:var(--t2)}
+.strat-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.stat-box{background:var(--sf2);border-radius:6px;padding:.5rem .7rem;text-align:center}
+.stat-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.stat-val{font-size:13px;font-weight:700;color:var(--t)}
 .gcard.expanded .gchev{transform:rotate(180deg)}
 
 /* ── STATES ── */
@@ -424,6 +457,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,san
       <span style="font-size:12px;color:var(--t3)">Resultados trimestrales de empresas clave</span>
     </div>
     <div id="earn-content"></div>
+  </div>
+</div>
+
+<!-- ═══ ESTRATEGIAS ═══ -->
+<div class="page" id="pg-strat">
+  <div class="fullpage">
+    <div class="ph">
+      <h2>Estrategias de Trading</h2>
+      <span style="font-size:12px;color:var(--t3)" id="strat-count"></span>
+    </div>
+    <div class="gl-cats" id="strat-cats"></div>
+    <div id="strat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px"></div>
   </div>
 </div>
 
@@ -576,35 +621,32 @@ function updateUnreadCount() {
 }
 
 async function fetchSource(src) {
-  const proxies = [
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent(src.url),
-    'https://corsproxy.io/?' + encodeURIComponent(src.url),
-  ];
-  for (const proxy of proxies) {
-    try {
-      const r = await fetch(proxy, { signal: AbortSignal.timeout(10000) });
-      if (!r.ok) continue;
-      let txt = await r.text();
-      // allorigins sometimes wraps in JSON
-      if (txt.trim().startsWith('{')) {
-        try { const j = JSON.parse(txt); if (j.contents) txt = j.contents; } catch(e) {}
-      }
-      const xml = new DOMParser().parseFromString(txt, 'text/xml');
-      const items = [...xml.querySelectorAll('item')];
-      if (!items.length) continue;
-      return items.slice(0, 15).map(item => {
-        const title = cleanText(item.querySelector('title')?.textContent || '');
-        if (!title || title.length < 10) return null;
-        const desc = item.querySelector('description')?.textContent || '';
-        const link = item.querySelector('link')?.textContent || item.querySelector('guid')?.textContent || '#';
-        const pubDate = item.querySelector('pubDate')?.textContent || '';
-        const combined = title + ' ' + cleanText(desc);
-        const pubTs = new Date(pubDate).getTime() || 0;
-        return { title, desc: cleanText(desc).slice(0, 200), article: buildArticle(desc), source: src.name, link, dt: formatDate(pubDate), pubTs, imp: classifyNews(combined), markets: getMarkets(combined) };
-      }).filter(Boolean);
-    } catch(e) { continue; }
-  }
-  return [];
+  try {
+    const api = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(src.url) + '&api_key=public&count=20';
+    const r = await fetch(api, { signal: AbortSignal.timeout(10000) });
+    if (!r.ok) return [];
+    const data = await r.json();
+    if (data.status !== 'ok' || !data.items?.length) return [];
+    return data.items.map(item => {
+      const title = (item.title || '').trim();
+      if (!title || title.length < 10) return null;
+      const desc = item.description || '';
+      const descClean = cleanText(desc);
+      const combined = title + ' ' + descClean;
+      const pubTs = new Date(item.pubDate || '').getTime() || 0;
+      return {
+        title,
+        desc: descClean.slice(0, 200),
+        article: buildArticle(desc),
+        source: src.name,
+        link: item.link || '#',
+        dt: formatDate(item.pubDate || ''),
+        pubTs,
+        imp: classifyNews(combined),
+        markets: getMarkets(combined)
+      };
+    }).filter(Boolean);
+  } catch(e) { return []; }
 }
 
 async function loadNews() {
@@ -919,61 +961,6 @@ const GLOSS = [
   {term:'FOMO (Fear Of Missing Out)',cat:'r',def:'Miedo a perderse un movimiento o oportunidad. Lleva a entrar en operaciones tarde, sin setup claro, o a tamaños demasiado grandes porque "esta subiendo mucho y no quiero quedarme fuera". Es uno de los errores psicologicos mas costosos del trading.',example:'El Bitcoin lleva 3 dias subiendo 10% cada dia. El FOMO te hace comprar justo en el techo porque "no puedes perderte esta subida". Al dia siguiente cae 15%.',level:7},
   {term:'Sesgo de confirmacion',cat:'r',def:'Tendencia psicologica a buscar y darle mas peso a la informacion que confirma tu tesis actual, ignorando la que la contradice. Es peligroso porque te mantiene en posiciones perdedoras convencido de que tienes razon.',example:'Tienes una posicion corta en el S&P. El mercado sube pero buscas articulos que digan que va a caer para confirmar que tienes razon. Ignoras las señales alcistas evidentes. Pierdes mas de lo necesario.',level:7},
   {term:'Black Swan',cat:'r',def:'Evento impredecible, de alto impacto y que solo parece obvio en retrospectiva. Son los eventos que pueden destruir una cuenta si no tienes gestion de riesgo adecuada. El COVID-19 (2020), la crisis financiera (2008) y el 11-S son ejemplos de Black Swans.',example:'Tienes posiciones largas grandes sin SL "porque el mercado ha estado muy estable". Un Black Swan inesperado cae el mercado 20% en 3 dias. Sin SL, las perdidas pueden ser devastadoras.',level:7},
-
-  // ── NIVEL 8: ANALISIS TECNICO AVANZADO ──
-  {term:'Ichimoku Cloud',cat:'n',def:'Sistema de analisis tecnico japones que combina 5 lineas para mostrar soporte, resistencia, momentum y direccion de tendencia en un solo grafico. Si el precio esta por encima de la nube (Kumo) es alcista, por debajo bajista. La nube proyecta soporte y resistencia futuros. Las 5 lineas son: Tenkan-sen (media 9 periodos), Kijun-sen (media 26), Senkou Span A y B (forman la nube) y Chikou Span (precio retrasado 26 periodos).',example:'El EUR/USD rompe por encima de la nube Ichimoku con volumen alto. Señal alcista fuerte. Los traders japoneses usan este sistema desde los años 70 y sigue siendo muy popular en forex.',level:8},
-  {term:'ATR (Average True Range)',cat:'n',def:'Indicador que mide la volatilidad promedio de un activo durante N periodos. No indica direccion, solo amplitud del movimiento tipico. Esencial para colocar stops correctamente: si el ATR diario del ES es 45 puntos, un stop de 15 puntos se activara con ruido normal del mercado.',example:'ATR diario del ES = 45 puntos. Poner un stop a 20 puntos del precio es demasiado ajustado: el ruido normal te triggerea. Un stop de 50-60 puntos (1-1.3x ATR) es mas adecuado para dar espacio al mercado.',formula:'TR = max(High-Low, |High-PrevClose|, |Low-PrevClose|). ATR = media movil del TR.',level:8},
-  {term:'Ondas de Elliott',cat:'n',def:'Teoria de Ralph Elliott que dice que los mercados se mueven en patrones de ondas repetitivos: 5 ondas en la direccion de la tendencia principal (impulsivas) y 3 ondas correctivas (ABC). Muy subjetivo pero muy seguido por analistas tecnicos. Las ondas siguen proporciones de Fibonacci.',example:'El S&P 500 completa una onda 5 de impulso alcista (la onda final de la tendencia). Los traders de Elliott esperan ahora una correccion ABC de 3 ondas antes de la siguiente impulsiva.',level:8},
-  {term:'Stochastic Oscillator',cat:'n',def:'Oscilador que compara el precio de cierre con el rango High-Low de los ultimos N periodos. Escala 0-100. Por encima de 80 = sobrecomprado. Por debajo de 20 = sobrevendido. Un cruce alcista de las dos lineas (%K por encima de %D) en zona sobrevendida genera señal de compra.',example:'El Stochastico del oro llega a 12 (sobrevendido extremo) y las lineas se cruzan hacia arriba mientras el precio toca soporte de largo plazo. Señal de posible rebote con alta probabilidad.',level:8},
-  {term:'ADX (Average Directional Index)',cat:'n',def:'Mide la FUERZA de una tendencia, no su direccion. ADX >25 = tendencia fuerte presente. ADX >50 = tendencia muy fuerte. ADX <20 = mercado lateral sin tendencia clara. Se combina con +DI y -DI para determinar si la tendencia es alcista o bajista.',example:'El ADX del NASDAQ esta en 38 y subiendo. Confirma que la tendencia alcista actual tiene fuerza. No es buen momento para estrategias de mean reversion ni para ir contra la tendencia.',level:8},
-  {term:'Parabolic SAR',cat:'n',def:'Indicador que coloca puntos por encima o por debajo del precio para seguir la tendencia. Puntos debajo del precio = tendencia alcista, posicion larga. Puntos encima = tendencia bajista, posicion corta. Cuando el precio cruza los puntos = señal de cambio de tendencia.',example:'El Parabolic SAR ha estado por debajo del EUR/USD durante 12 dias (tendencia alcista). El precio cruza y cierra por debajo de los puntos. Señal de posible cambio a tendencia bajista o fin de tendencia.',level:8},
-  {term:'Keltner Channels',cat:'n',def:'Bandas de volatilidad similares a las Bollinger Bands pero usando ATR en vez de desviacion estandar. Cuando las Bollinger Bands salen fuera de los Keltner Channels se llama "squeeze" y anticipa un movimiento explosivo inminente. No indica la direccion, solo que se avecina un gran movimiento.',example:'Las Bollinger Bands del BTC se comprimen dentro de los Keltner Channels durante 3 semanas (squeeze). La volatilidad se acumula. Cuando el precio rompe, el movimiento es de mas del 20% en pocos dias.',level:8},
-  {term:'Donchian Channels',cat:'n',def:'Canal formado por el maximo y minimo de los ultimos N periodos. La ruptura del maximo del canal es señal alcista, la del minimo bajista. Fue la base del legendario sistema Turtle Trading de Richard Dennis que demostro que el trading puede enseñarse.',example:'El precio del WTI rompe el maximo de los ultimos 20 dias con volumen alto. Segun el sistema Turtle, es señal de compra. Los seguidores de tendencia entran aqui con stop bajo el minimo de los 10 dias.',level:8},
-  {term:'On Balance Volume (OBV)',cat:'n',def:'Indicador de volumen que acumula el volumen en dias alcistas y lo resta en dias bajistas. Si el OBV sube junto con el precio, confirma la tendencia. Si el precio sube pero el OBV baja (divergencia), los institucionales pueden estar distribuyendo (vendiendo) mientras el precio se mantiene artificialmente.',example:'Tesla hace nuevos maximos historicos pero el OBV no los supera (divergencia bajista). Señal de que a pesar de los nuevos maximos, el dinero institucional podria estar saliendo de la accion.',level:8},
-  {term:'Williams %R',cat:'n',def:'Oscilador similar al Stochastico pero con escala invertida (0 a -100). Cerca de 0 = sobrecomprado. Cerca de -100 = sobrevendido. Muy sensible y util para detectar puntos de giro a corto plazo dentro de una tendencia establecida. Fue creado por Larry Williams, legendario trader de futuros.',example:'Williams %R llega a -95 (sobrevendido extremo) en una accion que esta en tendencia alcista solida de largo plazo. Es una posible zona de entrada para compra en retroceso dentro de la tendencia.',level:8},
-  {term:'VWAP Desviaciones Estandar',cat:'n',def:'Extension del VWAP clasico que añade bandas de desviacion estandar (similar a las Bollinger Bands pero sobre el VWAP). La primera desviacion (±1 SD) cubre el 68% del volumen negociado. La segunda (±2 SD) el 95%. El precio que llega a 2 SD del VWAP suele tender a revertir.',example:'El ES sube hasta 2 desviaciones estandar por encima del VWAP. Estadisticamente el precio esta "demasiado lejos" del VWAP y suele volver hacia el. Los traders intraday buscan entradas short en esos niveles.',level:8},
-  {term:'Market Profile (POC y VA)',cat:'n',def:'Distribucion del volumen por precio durante un periodo. POC (Point of Control): precio con mayor volumen negociado, actua como iman para el precio. Value Area (VA): zona donde se negocia el 70% del volumen. Precio dentro del VA = continuacion. Precio fuera del VA = posible retorno o nuevo rango.',example:'El POC del ES de ayer fue en 5.310. Hoy el precio abre 20 puntos por debajo del VA del dia anterior. Muchos traders esperan que el precio vuelva a entrar al VA (por encima de 5.310) como primera hipotesis del dia.',level:8},
-  // ── NIVEL 8: TIPOS DE ORDENES ──
-  {term:'Orden OCO (One Cancels Other)',cat:'f',def:'Par de ordenes vinculadas donde si una se ejecuta, la otra se cancela automaticamente. La forma mas eficiente de gestionar una posicion: pones simultaneamente el Take Profit y el Stop Loss y el mercado decide cual se activa. Sin OCO tendrias que cancelar manualmente el orden que no se activo.',example:'Posicion larga en EUR/USD a 1.0850. OCO: TP en 1.0950 y SL en 1.0800. Si el precio sube a 1.0950, el TP se ejecuta y el SL se cancela. Si cae a 1.0800, el SL se ejecuta y el TP se cancela. No necesitas vigilar.',level:8},
-  {term:'Orden Stop-Limit',cat:'f',def:'Cuando el precio alcanza el precio "stop", se coloca automaticamente una orden limitada al precio "limit". Da mas control sobre el precio de ejecucion que una orden stop de mercado, pero el riesgo es que si el mercado cae muy rapido, la orden no se ejecute y la perdida sea mayor.',example:'Tienes acciones a 100. Pones stop 95, limit 94. Cuando el precio toca 95, se coloca venta limitada a 94. Si el precio cae directamente de 100 a 90, la orden no se ejecuta y sigues en la posicion perdedora.',level:8},
-  {term:'Iceberg Order',cat:'f',def:'Orden grande dividida automaticamente en partes mas pequeñas para ocultar el tamaño real al mercado. Solo se muestra la "punta del iceberg". Los sistemas de order flow avanzados pueden detectarlos por el patron repetitivo de ejecucion.',example:'Un hedge fund quiere comprar 500.000 acciones de NVDA sin mover el precio. Usa una orden iceberg que solo muestra 5.000 acciones a la vez. Las 495.000 restantes se van añadiendo automaticamente conforme se ejecutan las primeras.',level:8},
-  // ── NIVEL 9: MACRO AVANZADA ──
-  {term:'Quantitative Easing (QE)',cat:'m',def:'Politica monetaria no convencional donde el banco central crea dinero electronico y lo usa para comprar bonos u otros activos del mercado. Inyecta liquidez, baja los tipos a largo plazo y suele impulsar el precio de los activos. La Fed uso QE masivamente en 2008, 2012, 2015 y 2020.',example:'La Fed anuncia QE de 120.000 millones al mes en compras de bonos y MBS. La liquidez inunda el sistema. Los tipos caen, el credito es barato, las bolsas suben. El S&P 500 se triplico entre 2012 y 2022 en parte gracias al QE.',level:9},
-  {term:'Quantitative Tightening (QT)',cat:'m',def:'Lo contrario del QE. El banco central reduce su balance dejando vencer bonos sin reinvertir o vendiendolos. Retira liquidez del sistema, presiona los tipos al alza y suele ser negativo para activos de riesgo. La Fed inicio QT en 2022 reduciendo su balance en 95.000 millones al mes.',example:'La Fed hace QT a 95.000 millones al mes desde 2022. El mercado pierde liquidez, los tipos suben, el credito se encarece. El S&P 500 cayo un 20% en 2022 en parte por el QT.',level:9},
-  {term:'Forward Guidance',cat:'m',def:'Comunicacion explicita del banco central sobre sus intenciones de politica monetaria futura. Permite a los mercados anticiparse a los cambios de tipos antes de que ocurran. Una sola frase de Powell o Lagarde puede mover los mercados mas que la propia decision de tipos.',example:'Powell dice en Jackson Hole: "Higher for longer." El mercado interpreta que no habra bajadas de tipos pronto. Las bolsas caen 3%, el dolar sube, los bonos caen. Las palabras del banco central son mas poderosas que los hechos a corto plazo.',level:9},
-  {term:'Dot Plot (Fed)',cat:'m',def:'Grafico publicado por la Fed 4 veces al año con las proyecciones de tipos de cada miembro del FOMC representados como puntos anonimos. La mediana de los puntos es el indicador mas claro de donde ve la Fed los tipos en el futuro a 1, 2 y 3 años.',example:'El Dot Plot de diciembre muestra mediana de 2 bajadas en 2025. El mercado habia descontado 4 bajadas. Las bolsas caen al reajustar expectativas. Los bonos a 2 años suben en rendimiento. El dolar se fortalece.',level:9},
-  {term:'Carry Trade',cat:'f',def:'Pedir prestado en una moneda con tipos de interes bajos e invertir en otra con tipos altos, ganando la diferencia (el "carry"). El riesgo es un movimiento brusco de la moneda prestada que puede borrar años de carry en dias. El deshacimiento masivo del carry trade JPY en 2024 causo flash crash global.',example:'Pides prestado en JPY (tipos 0.1%) e inviertes en USD (tipos 5.3%). Ganas 5.2% anual de carry. Pero en agosto 2024 el Banco de Japon sube tipos inesperadamente. El JPY sube 10% en dias. El carry trade se deshace masivamente causando caidas del 10% en bolsas globales.',level:9},
-  {term:'Efecto Cantillon',cat:'m',def:'Teoria economica (siglo XVIII, Richard Cantillon) que establece que cuando se crea nuevo dinero, no llega a todos simultaneamente. Los que lo reciben primero (bancos, gobierno, grandes inversores) se benefician comprando activos antes de que los precios suban. Los ultimos en recibirlo (trabajadores, ahorradores) solo ven la inflacion resultante.',example:'La Fed crea 3 billones en 2020. Los bancos que reciben ese dinero primero compran activos: bolsas, inmuebles, bonos. Todos suben. Los trabajadores con salarios fijos ven como los precios de vivienda se disparan pero sus salarios no se han ajustado aun.',level:9},
-  {term:'Repo Rate',cat:'m',def:'Tipo de interes al que los bancos se prestan dinero a muy corto plazo (normalmente overnight) usando bonos como colateral. Es el tipo de referencia del mercado monetario. Cuando el repo rate se dispara (como en sept 2019 en EEUU), señala estres de liquidez en el sistema bancario.',example:'En septiembre 2019 el repo rate americano se disparo de 2% a 10% en horas. Los bancos no se prestaban entre si. La Fed tuvo que inyectar urgentemente 75.000 millones para estabilizar el mercado. Señal de estres de liquidez bancaria.',level:9},
-  {term:'Taper Tantrum',cat:'m',def:'Reaccion violenta del mercado cuando la Fed anuncio en 2013 que reduciria gradualmente (tapering) sus compras de bonos del QE3. Los bonos del Tesoro cayeron bruscamente (yields subieron), las monedas emergentes se hundieron y las bolsas sufrieron. Ahora cualquier señal de reduccion del QE se llama "taper".',example:'Bernanke menciona en 2013 que la Fed podria reducir el QE. El bono del Tesoro a 10 años sube de 1.6% a 3% en meses. El MSCI Emerging Markets cae 15%. Los mercados temen que la fiesta de liquidez se acabe.',level:9},
-  {term:'Helicopter Money',cat:'m',def:'Concepto teorico (de Milton Friedman) donde el banco central crea dinero y lo distribuye directamente a los ciudadanos en vez de a los bancos. Mas inflacionario que el QE pero mas efectivo para estimular el consumo. Los cheques directos del gobierno americano en 2020 se consideran cuasi-helicopter money.',example:'En 2020 el gobierno americano envio cheques directos de 1.200$ a cada ciudadano. Este dinero fue directamente al consumo (coches usados, inmuebles, bolsa retail). El resultado fue inflacion del 9% en 2022.',level:9},
-  {term:'Balanza por cuenta corriente',cat:'m',def:'Diferencia entre lo que un pais exporta e importa (bienes, servicios, rentas). Deficit = el pais importa mas de lo que exporta = necesita financiacion exterior = puede debilitar la moneda. Superavit = el pais exporta mas = acumula divisas = puede fortalecer la moneda.',example:'EEUU tiene deficit por cuenta corriente cronico (importa mucho mas de lo que exporta). Necesita que los extranjeros inviertan en dolares para financiar ese deficit. China tiene superavit y acumula reservas en dolares.',level:9},
-  {term:'PPP (Paridad del Poder Adquisitivo)',cat:'m',def:'Teoria que dice que los tipos de cambio a largo plazo deben reflejar las diferencias de precios entre paises. Si una hamburguesa cuesta 5$ en EEUU y 4€ en Europa, el tipo de cambio "justo" segun PPP seria 1.25. El Economist publica el Big Mac Index basado en este concepto.',example:'Segun la PPP, el EUR/USD deberia estar en 1.20. Actualmente esta en 1.08. Esto sugiere que el euro esta "barato" segun PPP. Pero la PPP puede tardar años o decadas en cumplirse.',level:9},
-  // ── NIVEL 9: PSICOLOGIA AVANZADA ──
-  {term:'Diario de trading',cat:'r',def:'Registro detallado de cada operacion: razonamiento de entrada, setup tecnico, tamano, SL y TP colocados, emociones sentidas durante la operacion y reflexion posterior. Es la herramienta mas infravalorada del trading. Sin diario es imposible mejorar sistematicamente.',example:'Llevas diario 3 meses y descubres que el 80% de tus perdidas ocurren los lunes por la mañana cuando el mercado no tiene direccion. Con ese dato, dejas de operar los lunes hasta las 11:00 y tu tasa de acierto mejora notablemente.',level:9},
-  {term:'Sesgo de anclaje',cat:'r',def:'Dar demasiado peso al primer numero que ves (el "ancla"). Si compras una accion a 200$ y cae a 120$, el ancla de 200$ te hace ver 120$ como "barato" aunque ese pueda ser su precio justo o incluso caro segun los fundamentales actuales.',example:'Compraste BTC a 60.000$. Cayo a 30.000$. El sesgo de anclaje te dice que esta "barato" porque pagaste 60.000$. Pero 30.000$ podria ser el precio justo. No existe la obligacion del mercado de volver a donde entraste.',level:9},
-  {term:'Efecto disposicion',cat:'r',def:'Tendencia a vender demasiado pronto las posiciones ganadoras (para asegurar ganancias) y mantener demasiado tiempo las perdedoras (esperando recuperar). Es lo contrario de lo optimo: deberia ser "cut your losses short, let your winners run." Pero la psicologia humana hace lo inverso.',example:'Tienes NVDA ganando 500$ y META perdiendo 500$. El efecto disposicion te lleva a cerrar NVDA para asegurar y aguantar META esperando recuperar. Estadisticamente, lo optimo suele ser lo contrario: cortar META y dejar correr NVDA.',level:9},
-  {term:'Backtesting',cat:'r',def:'Probar una estrategia de trading sobre datos historicos para evaluar como habria funcionado. No garantiza resultados futuros pero es esencial para validar una estrategia. El peligro principal es el overfitting: ajustar tanto los parametros al pasado que la estrategia no funciona en el futuro.',example:'Programas tu estrategia en Python y la pruebas sobre 10 años de datos del ES. Obtienes un Sharpe ratio de 1.8 y drawdown maximo del 12%. Antes de operar en real, la pruebas en un periodo fuera de la muestra (out-of-sample) para ver si los resultados se mantienen.',level:9},
-  {term:'Paper Trading',cat:'r',def:'Practicar trading simulado con dinero ficticio. Permite aprender la plataforma, probar estrategias y ganar confianza sin riesgo financiero real. La limitacion clave: no replica la presion psicologica del dinero real. Los resultados en paper suelen ser mejores que en real por ausencia de emociones.',example:'Antes de operar futuros ES con capital real, haces 2 meses de paper trading. Aprendes a colocar ordenes rapido, a gestionar el SL, a seguir tu plan. Cuando pasas a real, el mecanico ya no es un obstaculo y solo tienes que gestionar las emociones.',level:9},
-  {term:'Sesgo de supervivencia',cat:'r',def:'Error de considerar solo los casos exitosos al evaluar una estrategia o periodo. Las estrategias que fallaron no aparecen en los libros. Los fondos que quebraron no aparecen en los indices. Esto hace que los rendimientos historicos parezcan mejores de lo que realmente fueron.',example:'Estudias los hedge funds mas exitosos de la historia. Todos obtuvieron rentabilidades extraordinarias. Pero olvidas los miles de hedge funds que quebraron en el mismo periodo y no aparecen en los datos. El supervivencia bias hace que la industria parezca mas rentable de lo que es.',level:9},
-  // ── NIVEL 10: TRADING CUANTITATIVO ──
-  {term:'Algo Trading',cat:'n',def:'Uso de programas informaticos para ejecutar estrategias de trading automaticamente siguiendo reglas predefinidas. Va desde simples EAs en MetaTrader hasta sistemas de inteligencia artificial sofisticados. Ventajas: sin emociones, ejecucion rapida, puede operar 24h. Desventajas: necesita mantenimiento y puede fallar en condiciones de mercado inusuales.',example:'Programas un algoritmo que compra el ES cuando la EMA9 cruza la EMA21 al alza con volumen 20% por encima de la media y RSI entre 40-60. El algoritmo ejecuta estas ordenes automaticamente con tamano de posicion calculado por Kelly Criterion.',level:10},
-  {term:'Mean Reversion',cat:'n',def:'Estrategia basada en que los precios tienden a volver a su media historica cuando se alejan demasiado. Funciona bien en mercados laterales y activos muy liquidos. Es devastadora si el mercado esta en tendencia fuerte porque un activo "caro" puede seguir subiendo mucho tiempo.',example:'El Z-score del spread entre el bono americano a 10 años y el aleman esta 2.5 desviaciones estandar por encima de la media historica. Una estrategia de mean reversion venderia el bono americano y compraria el aleman esperando que el spread vuelva a la media.',level:10},
-  {term:'Statistical Arbitrage',cat:'n',def:'Estrategia cuantitativa que explota desviaciones estadisticas en relaciones historicas entre activos. Cuando la correlacion historica entre dos activos se rompe temporalmente, se opera la vuelta a la media. Requiere modelos estadisticos y es market-neutral (no depende de la direccion del mercado).',example:'JPMorgan y Bank of America tienen correlacion historica del 0.92. Hoy JP Morgan sube 3% y BofA solo 0.5%. El stat arb compra BofA y vende JPMorgan esperando que la correlacion se restablezca. No importa si el sector bancario sube o baja, solo el spread entre los dos.',level:10},
-  {term:'Kelly Criterion',cat:'r',def:'Formula matematica que calcula el tamaño optimo de posicion para maximizar el crecimiento del capital a largo plazo. Requiere conocer la probabilidad de exito y el ratio ganancia/perdida. En la practica se usa el "Half Kelly" (mitad del tamaño sugerido) para mayor seguridad y menor volatilidad de la cuenta.',example:'Estrategia con 55% de tasa de acierto y ratio R/R 1:1.5. Kelly = (0.55 x 1.5 - 0.45) / 1.5 = 25%. El Half Kelly seria 12.5% del capital por operacion. Demasiado agresivo para la mayoria, muchos traders usan 1/4 Kelly (6.25%).',formula:'f* = (p*b - q) / b   p=prob exito, q=prob fracaso, b=ratio ganancia/perdida',level:10},
-  {term:'Sharpe Ratio',cat:'r',def:'Medida del rendimiento ajustado por riesgo. Divide el exceso de rentabilidad (sobre el activo libre de riesgo) entre la volatilidad. Sharpe >1 = bueno. >2 = muy bueno. >3 = excepcional. Permite comparar estrategias con diferente nivel de riesgo de forma justa.',example:'Estrategia A: rentabilidad 20%, volatilidad 25%. Sharpe = (20-5)/25 = 0.6. Estrategia B: rentabilidad 12%, volatilidad 8%. Sharpe = (12-5)/8 = 0.875. La estrategia B es mejor ajustada por riesgo aunque tenga menor rentabilidad absoluta.',formula:'Sharpe = (Rp - Rf) / σp   Rp=rentabilidad, Rf=tasa libre de riesgo, σ=volatilidad',level:10},
-  {term:'Sortino Ratio',cat:'r',def:'Similar al Sharpe Ratio pero solo penaliza la volatilidad negativa (drawdowns), no la positiva (subidas). Es una medida mas justa porque a los inversores no les molesta la volatilidad al alza, solo las caidas. Un Sortino > 2 es considerado bueno.',example:'Dos estrategias tienen el mismo Sharpe de 1.2. Pero la estrategia A tiene muchas subidas volatiles y la B tiene muchas caidas. El Sortino de A sera mucho mayor. Para un trader aversivo al riesgo, A es claramente mejor.',formula:'Sortino = (Rp - Rf) / σneg   donde σneg es solo la volatilidad de los retornos negativos',level:10},
-  {term:'Maximum Drawdown',cat:'r',def:'La mayor caida porcentual desde un pico hasta el valle posterior en la historia de una estrategia o cartera. Es la medida de riesgo mas practica e intuitiva. Un max drawdown del 30% significa que en el peor momento historico, perdiste el 30% desde el pico. Preguntate: ¿podrias aguantar psicologicamente ese drawdown?',example:'Tu estrategia tiene un max drawdown historico del 22%. Eso significa que en el peor momento viste tu cuenta caer un 22% desde el punto mas alto. Si tienes 50.000€, en ese momento maximo verias 11.000€ desaparecer. ¿Seguirias el sistema o lo abandonarias?',level:10},
-  {term:'Calmar Ratio',cat:'r',def:'Cociente entre la rentabilidad anualizada y el max drawdown. Mide cuanto rendimiento obtienes por cada unidad de drawdown maximo. Calmar > 1 es aceptable. >2 es bueno. Muy usado para evaluar fondos y estrategias de futuros.',example:'Estrategia con 25% de rentabilidad anual y max drawdown del 15%. Calmar = 25/15 = 1.67. Aceptable. Si otra estrategia tiene 30% de rentabilidad pero max drawdown del 40%, su Calmar = 0.75. La primera estrategia es mas eficiente por unidad de riesgo.',formula:'Calmar = Rentabilidad anualizada / |Max Drawdown|',level:10},
-  {term:'Factor Investing',cat:'a',def:'Inversion sistematica en factores que historicamente generan rentabilidades superiores al mercado: Value (acciones baratas por PER/PB), Momentum (acciones con buen comportamiento reciente), Quality (alta rentabilidad y baja deuda), Low Volatility (acciones con menor beta), Size (small caps). Los ETFs "smart beta" replican estos factores a bajo coste.',example:'Un ETF de factor Momentum compra sistematicamente las 100 acciones del S&P 500 con mejor rendimiento en los ultimos 12 meses y rebalancea trimestralmente. Historicamente ha superado al S&P en periodos largos pero con mayor volatilidad.',level:10},
-  {term:'Volatility Targeting',cat:'r',def:'Estrategia de gestion de riesgo que ajusta dinamicamente el tamaño de las posiciones para mantener la volatilidad de la cartera constante. Cuando el VIX sube, se reducen posiciones. Cuando el VIX baja, se aumentan. Proteccion automatica en mercados turbulentos sin decision subjetiva.',example:'Objetivo: volatilidad de cartera del 10% anual. El VIX sube de 15 a 30 (volatilidad se dobla). Automaticamente reduces a la mitad el tamaño de todas las posiciones. Cuando el VIX vuelve a 15, las recuperas. Sin necesidad de decidir: el sistema lo hace solo.',level:10},
-  {term:'Risk Parity',cat:'r',def:'Estrategia donde cada activo de la cartera contribuye IGUAL al riesgo total, no igual en capital. Los activos menos volatiles (bonos) reciben mas capital, los mas volatiles (acciones) menos. Se puede apalancar para conseguir las rentabilidades objetivo. Ray Dalio (Bridgewater) popularizo esta estrategia con su "All Weather Portfolio".',example:'Cartera 60/40 tradicional: las acciones (60%) dominan el riesgo porque son mucho mas volatiles que los bonos (40%). En Risk Parity, quizas pones 30% en acciones y 70% en bonos para igualar la contribucion al riesgo, pero apalancas los bonos para compensar la menor rentabilidad.',level:10},
-  {term:'Pairs Trading',cat:'n',def:'Estrategia market-neutral que opera la relacion entre dos activos altamente correlacionados. Cuando uno supera al otro en exceso (el spread se aleja de la media), se compra el rezagado y se vende el adelantado esperando que el spread vuelva a la media. No depende de la direccion del mercado.',example:'Coca-Cola (KO) y Pepsi (PEP) tienen correlacion historica del 0.88. Hoy KO sube 4% y PEP solo 1%. Compras PEP y vendes KO. No te importa si el sector sube o baja, solo que el spread (KO-PEP) vuelva a la media historica.',level:10},
-  {term:'Greeks de opciones (Delta, Gamma, Theta, Vega)',cat:'f',def:'Medidas de sensibilidad del precio de una opcion. Delta: cuanto cambia el precio de la opcion por cada 1$ de movimiento del subyacente (0 a 1 para calls, -1 a 0 para puts). Gamma: la velocidad a la que cambia el delta. Theta: cuanto pierde la opcion por dia que pasa (decaimiento temporal). Vega: cuanto cambia ante un 1% de cambio en la volatilidad implicita.',example:'Compras una call de AAPL con Delta 0.50. AAPL sube 4$. Tu opcion sube 2$ (4 x 0.50). Pero el Theta es -0.08 diario, por lo que pierdes 8 centavos cada dia sin movimiento. Si pasan 10 dias sin que AAPL se mueva, tu opcion habra perdido 80 centavos solo por el paso del tiempo.',level:10},
-  {term:'Volatility Surface',cat:'f',def:'Representacion en 3D de la volatilidad implicita de las opciones en funcion del strike (eje X), el vencimiento (eje Y) y la volatilidad implicita (eje Z). Normalmente tiene forma de "sonrisa" (smile) porque las opciones muy dentro o muy fuera del dinero tienen mayor volatilidad implicita que las ATM (at the money).',example:'El skew del S&P 500 muestra que las puts con strike 10% por debajo del precio actual tienen volatilidad implicita del 25%, mientras las calls 10% por encima tienen 18%. Refleja que el mercado paga mas por proteccion bajista que por apalancamiento alcista.',level:10},
-  {term:'Variance Swap',cat:'f',def:'Contrato derivado donde se intercambia la varianza (volatilidad al cuadrado) realizada de un activo por una varianza fija acordada. Permite especular directamente con la volatilidad sin el peso del delta. Muy usado por hedge funds para posicionarse sobre la volatilidad futura del mercado.',example:'Un hedge fund cree que la volatilidad del S&P sera mayor de lo que implica el VIX. Compra un variance swap. Si la volatilidad realizada supera la pactada, gana la diferencia. Es como apostar a que el VIX subestima la volatilidad futura.',level:10},
-  {term:'CDS (Credit Default Swap)',cat:'f',def:'Derivado que funciona como seguro contra el impago de un bono o prestamo. El comprador paga una prima periodica y recibe el valor nominal si el emisor incumple. Los CDS de bonos soberanos o corporativos son indicadores del riesgo de credito percibido por el mercado.',example:'Los CDS del bono soberano de un pais emergente suben de 200 a 600 puntos basicos. El mercado percibe que hay mucho mayor riesgo de impago. Los inversores en bonos de ese pais estan muy preocupados y algunos cierran posiciones.',level:10},
-
 ];
 
 const CAT_NAMES = {f:'Futuros/CFD',a:'Acciones',n:'Analisis',r:'Riesgo',m:'Macro',e:'ETF',p:'Psicologia'};
@@ -1398,6 +1385,563 @@ function toggleEarn(ticker) {
 }
 
 renderEarnings();
+
+// ─────────────────────────────────
+// ESTRATEGIAS DE TRADING
+// ─────────────────────────────────
+const STRATEGIES = [
+  // ── TENDENCIA ──
+  {name:'EMA Crossover Clasico',type:'trend',typeTxt:'Tendencia',
+   desc:'La estrategia mas usada en el mundo. Dos medias moviles: cuando la rapida cruza por encima de la lenta, compramos. Cuando cruza por debajo, vendemos.',
+   markets:['Futuros ES/NQ','Forex','Acciones'],tf:'1H / 4H / Diario',
+   steps:[
+     {t:'Añade la EMA 9 (rapida) y EMA 21 (lenta) en tu grafico.'},
+     {t:'Espera a que la EMA9 cruce POR ENCIMA de la EMA21 con una vela cerrada. Esta es la señal de entrada larga.'},
+     {t:'Confirma que el precio esta por encima de ambas EMAs en el momento del cruce.'},
+     {t:'Confirma con volumen: el volumen debe ser mayor que la media de los ultimos 10 periodos.'},
+     {t:'Entra en la apertura de la siguiente vela tras el cruce confirmado.'},
+     {t:'Stop Loss: por debajo del minimo de las ultimas 3 velas antes del cruce.'},
+     {t:'Take Profit: 2x la distancia del stop (ratio R/R 1:2 minimo).'},
+     {t:'Para short: lo mismo pero EMA9 cruzando POR DEBAJO de EMA21.'},
+   ],
+   entry:'Apertura vela siguiente al cruce EMA9/EMA21',
+   sl:'Bajo minimo de las 3 ultimas velas del cruce',tp:'2x distancia del stop (R/R 1:2)',
+   winrate:'52-58%',rr:'1:2',timeframe:'1H-4H',difficulty:'Basico',
+   tip:'Funciona mejor en mercados con tendencia clara. Evitar en mercados laterales donde genera muchas señales falsas. Filtrar solo señales en la direccion de la tendencia del marco temporal superior (diario).'},
+
+  {name:'MACD + EMA 200 Trend Follow',type:'trend',typeTxt:'Tendencia',
+   desc:'Combina la EMA200 para filtrar la direccion de la tendencia con el MACD para el timing de entrada. Solo operamos en la direccion de la tendencia principal.',
+   markets:['Forex','Futuros','Acciones'],tf:'4H / Diario',
+   steps:[
+     {t:'Añade la EMA200 en el grafico diario o 4H.'},
+     {t:'Regla de tendencia: solo buscar LONGS si el precio esta POR ENCIMA de la EMA200. Solo SHORTS si esta POR DEBAJO.'},
+     {t:'Añade el MACD (12,26,9) en el sub-grafico.'},
+     {t:'Para LONG: espera a que el precio este sobre EMA200 Y el MACD cruce la linea de señal hacia ARRIBA desde zona negativa.'},
+     {t:'Entra en la siguiente vela tras el cruce del MACD.'},
+     {t:'Stop Loss: bajo el ultimo minimo swing (Low significativo anterior).'},
+     {t:'Take Profit: siguiente resistencia importante o 3x el stop.'},
+     {t:'Para SHORT: precio bajo EMA200 y MACD cruzando hacia abajo desde zona positiva.'},
+   ],
+   entry:'Cruce MACD en direccion de EMA200',sl:'Ultimo swing low/high',tp:'Resistencia proxima o 3x stop',
+   winrate:'48-55%',rr:'1:3',timeframe:'4H-Diario',difficulty:'Basico',
+   tip:'La EMA200 en el diario es el filtro mas importante. Si el precio esta sobre la EMA200 diaria, el sesgo es alcista y solo buscamos longs en marcos temporales inferiores.'},
+
+  {name:'Ruptura de Canal (Channel Breakout)',type:'breakout',typeTxt:'Ruptura',
+   desc:'Identificamos un canal de precio claro. Cuando el precio rompe el canal con fuerza y volumen, entramos en la direccion de la ruptura esperando una expansion del movimiento.',
+   markets:['Futuros ES/NQ','Acciones tech','Crypto'],tf:'1H / 4H',
+   steps:[
+     {t:'Identifica un canal de precio claro: al menos 3 toques en la linea superior y 3 en la inferior.'},
+     {t:'El canal debe tener al menos 10-15 velas de duracion para ser valido.'},
+     {t:'Espera que el precio rompa y CIERRE por encima de la linea superior del canal (para long).'},
+     {t:'Condicion de volumen: el volumen de la vela de ruptura debe ser al menos 1.5x la media de 20 periodos.'},
+     {t:'Entra en el retroceso: muchas veces el precio vuelve a testar el canal roto (ahora soporte). Ese retroceso es la entrada optima.'},
+     {t:'Stop Loss: por debajo de la linea del canal que se rompio (ahora soporte).'},
+     {t:'Take Profit: la amplitud del canal proyectada hacia arriba desde el punto de ruptura.'},
+   ],
+   entry:'Retroceso al canal roto tras ruptura',sl:'Bajo la linea del canal roto',tp:'Amplitud del canal proyectada',
+   winrate:'45-52%',rr:'1:2.5',timeframe:'1H-4H',difficulty:'Intermedio',
+   tip:'El retroceso al canal roto para retestear es la entrada mas limpia. Si el precio no retestea, la entrada en la ruptura directa es mas arriesgada pero valida con volumen fuerte.'},
+
+  {name:'Pullback a EMA en Tendencia',type:'trend',typeTxt:'Tendencia',
+   desc:'En una tendencia establecida, esperamos que el precio retroceda a la EMA20 o EMA50 para entrar en la direccion de la tendencia con mejor precio y menor riesgo.',
+   markets:['Cualquier mercado'],tf:'Diario / 4H',
+   steps:[
+     {t:'Confirma tendencia alcista: precio haciendo Higher Highs y Higher Lows, por encima de EMA50 y EMA200.'},
+     {t:'Añade la EMA20 (corto plazo) y EMA50 (medio plazo).'},
+     {t:'Espera que el precio retroceda y toque la EMA20 o EMA50 sin romperla con cierre diario.'},
+     {t:'Busca señal de rebote: vela Hammer, Doji, o envolvente alcista en la EMA.'},
+     {t:'Confirma con RSI: debe estar entre 40-55 en el momento del toque (sobrevendido moderado).'},
+     {t:'Entra en la siguiente vela tras la señal de rebote en la EMA.'},
+     {t:'Stop Loss: por debajo de la EMA50 (si entraste en EMA20) o bajo el minimo del retroceso.'},
+     {t:'Take Profit: anterior maximo o proyeccion del 1.618 de Fibonacci del retroceso.'},
+   ],
+   entry:'Rebote desde EMA20 o EMA50 en tendencia',sl:'Bajo EMA50 o minimo del retroceso',tp:'Anterior maximo o Fib 1.618',
+   winrate:'55-62%',rr:'1:2',timeframe:'4H-Diario',difficulty:'Basico',
+   tip:'Esta es una de las estrategias con mejor ratio de acierto. La clave es la calidad de la tendencia previa: cuanto mas limpia sea la tendencia, mas probable es el rebote en la EMA.'},
+
+  {name:'Turtle Trading (Ruptura Donchian)',type:'trend',typeTxt:'Tendencia',
+   desc:'El sistema original de las Tortugas de Richard Dennis. Compra ruptura del maximo de 20 dias, vende ruptura del minimo de 20 dias. Simple pero sorprendentemente efectivo en tendencias fuertes.',
+   markets:['Futuros materias primas','Acciones','Futuros indices'],tf:'Diario',
+   steps:[
+     {t:'Dibuja el canal de Donchian de 20 dias: linea del maximo mas alto y minimo mas bajo de las ultimas 20 sesiones.'},
+     {t:'Señal de compra: el precio cierra POR ENCIMA del maximo de 20 dias. Entra al dia siguiente al precio de apertura.'},
+     {t:'Señal de venta (exit): el precio cierra POR DEBAJO del minimo de 10 dias (canal de salida mas corto).'},
+     {t:'Stop Loss inicial: 2x ATR(20) por debajo del precio de entrada.'},
+     {t:'Piramiding: si la posicion va a tu favor, añade unidades cada vez que el precio suba 1 ATR.'},
+     {t:'Maximo 4 unidades por posicion. Cada unidad con su propio stop ajustado.'},
+     {t:'Risk por unidad: 1% del capital total. Con 4 unidades, riesgo maximo del 4% si todas son triggereadas.'},
+   ],
+   entry:'Ruptura del maximo de 20 dias',sl:'2x ATR(20) bajo entrada',tp:'Ruptura minimo de 10 dias (trailing)',
+   winrate:'35-40%',rr:'1:5+',timeframe:'Diario',difficulty:'Intermedio',
+   tip:'Este sistema tiene baja tasa de acierto pero las operaciones ganadoras son muy grandes. Requiere disciplina extrema para no saltarse las señales despues de varias perdidas seguidas.'},
+
+  // ── RUPTURA ──
+  {name:'Opening Range Breakout (ORB)',type:'breakout',typeTxt:'Ruptura',
+   desc:'Los primeros 15-30 minutos del mercado forman el "Opening Range". Si el precio rompe ese rango con fuerza, tiende a seguir en esa direccion el resto del dia.',
+   markets:['Futuros ES/NQ','Acciones','Forex Londres'],tf:'5min / 15min',
+   steps:[
+     {t:'Identifica los primeros 15 o 30 minutos de sesion (9:30-9:45 EST para acciones americanas, 8:00-8:30 para Frankfurt).'},
+     {t:'Marca el maximo y minimo de ese periodo inicial. Este es el "Opening Range".'},
+     {t:'Espera a que el precio rompa y CIERRE por encima del maximo (señal long) o por debajo del minimo (señal short).'},
+     {t:'Condicion de volumen: el volumen de la vela de ruptura debe ser mayor que las velas del Opening Range.'},
+     {t:'Entra en la proxima vela tras el cierre de ruptura.'},
+     {t:'Stop Loss: en el centro del Opening Range o en el extremo opuesto al que rompiste.'},
+     {t:'Take Profit: 1x o 2x la amplitud del Opening Range proyectada desde el punto de ruptura.'},
+   ],
+   entry:'Primera vela que cierra fuera del Opening Range',sl:'Centro o extremo opuesto del ORB',tp:'1-2x amplitud del ORB',
+   winrate:'50-57%',rr:'1:1.5',timeframe:'5-15min',difficulty:'Intermedio',
+   tip:'Funciona mejor en dias con catalizador claro (earnings, datos macro importantes). Evitar en dias de baja volatilidad sin noticias. El ORB de los primeros 30 minutos es mas fiable que el de 15.'},
+
+  {name:'Bull Flag / Bear Flag',type:'breakout',typeTxt:'Ruptura',
+   desc:'Patron de continuacion de tendencia. El precio hace un movimiento fuerte (el asta de la bandera), luego consolida en un rango estrecho ligeramente en contra de la tendencia (la bandera), y finalmente rompe en la direccion original.',
+   markets:['Acciones','Crypto','Futuros indices'],tf:'15min / 1H / 4H',
+   steps:[
+     {t:'Identifica el asta: movimiento fuerte y rapido de al menos 3-5% en poco tiempo, con volumen alto.'},
+     {t:'Identifica la bandera: consolidacion de 5-15 velas en un canal ligeramente inclinado contra la tendencia. Volumen debe BAJAR durante la consolidacion.'},
+     {t:'Señal de entrada: ruptura de la linea superior de la bandera (para bull flag) con vela de cierre fuera del canal.'},
+     {t:'El volumen debe volver a subir en la ruptura de la bandera.'},
+     {t:'Entra en la siguiente vela tras la ruptura confirmada.'},
+     {t:'Stop Loss: por debajo de la linea inferior de la bandera.'},
+     {t:'Take Profit: la longitud del asta proyectada desde el punto de ruptura de la bandera.'},
+   ],
+   entry:'Ruptura linea superior de la bandera con volumen',sl:'Bajo linea inferior de la bandera',tp:'Longitud del asta proyectada',
+   winrate:'55-62%',rr:'1:2',timeframe:'15min-4H',difficulty:'Basico',
+   tip:'El volumen es clave: debe caer durante la bandera (consolidacion sin vendedores) y explotar en la ruptura. Sin ese patron de volumen, el setup es menos fiable.'},
+
+  {name:'Volatility Breakout (Keltner Squeeze)',type:'breakout',typeTxt:'Ruptura',
+   desc:'Cuando las Bollinger Bands se comprimen dentro de los Keltner Channels (squeeze), la volatilidad esta acumulando presion. La primera ruptura tras el squeeze suele ser explosiva.',
+   markets:['Futuros','Crypto','Acciones'],tf:'1H / 4H / Diario',
+   steps:[
+     {t:'Añade Bollinger Bands (20,2) y Keltner Channels (20, 1.5 ATR) en el mismo grafico.'},
+     {t:'Identifica el squeeze: las Bollinger Bands deben estar completamente dentro de los Keltner Channels.'},
+     {t:'Cuanto mas tiempo dure el squeeze, mas potente sera la ruptura. Minimo 5-10 velas en squeeze.'},
+     {t:'Para determinar la direccion, observa el momentum: usa el histograma del MACD. Si esta subiendo = ruptura alcista probable.'},
+     {t:'Entra cuando las Bollinger Bands empiecen a expandirse fuera de los Keltner Channels.'},
+     {t:'Stop Loss: en el punto medio del rango del squeeze.'},
+     {t:'Take Profit: 2x el rango del squeeze desde el punto de entrada.'},
+   ],
+   entry:'Expansion de BBands fuera de Keltner Channels',sl:'Punto medio del rango del squeeze',tp:'2x rango del squeeze',
+   winrate:'50-55%',rr:'1:2',timeframe:'1H-Diario',difficulty:'Intermedio',
+   tip:'El squeeze no indica la direccion, solo que se avecina un movimiento. El momentum (MACD, precio respecto a EMA) es lo que da la direccion. Un squeeze en tendencia alcista probablemente rompa al alza.'},
+
+  // ── MEAN REVERSION ──
+  {name:'RSI Oversold Bounce',type:'reversion',typeTxt:'Mean Reversion',
+   desc:'Cuando el RSI cae a zona de sobrevendido extremo (<25) en una tendencia alcista, el precio suele rebotar. Estrategia de alta probabilidad en mercados con tendencia clara y RSI bajando por primera vez.',
+   markets:['Acciones blue chip','ETFs','Futuros indices'],tf:'Diario / 4H',
+   steps:[
+     {t:'Confirma que el activo esta en tendencia alcista: precio sobre EMA200 diaria.'},
+     {t:'Añade RSI(14) en el sub-grafico.'},
+     {t:'Espera que el RSI baje a menos de 30 (idealmente a 20-25 para mayor probabilidad).'},
+     {t:'Busca señal de giro: RSI haciendo un minimo y empezando a subir, O vela Hammer/Doji en soporte.'},
+     {t:'Confirma que el precio esta en soporte tecnico importante (EMA50, soporte previo, nivel de Fibonacci).'},
+     {t:'Entra cuando el RSI supere 30 en la siguiente sesion.'},
+     {t:'Stop Loss: por debajo del minimo de la vela de señal o bajo el soporte tecnico.'},
+     {t:'Take Profit: EMA20 o siguiente resistencia. Cierra el 50% al primer objetivo y deja correr el resto.'},
+   ],
+   entry:'RSI cruzando 30 desde abajo en soporte',sl:'Bajo minimo de la vela de señal',tp:'EMA20 o siguiente resistencia',
+   winrate:'60-68%',rr:'1:1.5',timeframe:'4H-Diario',difficulty:'Basico',
+   tip:'Funciona mejor cuando el RSI cae a sobrevendido por PRIMERA VEZ en la tendencia. Si el RSI lleva semanas en sobrevendido, el activo puede estar en cambio de tendencia y la estrategia pierde eficacia.'},
+
+  {name:'Bollinger Band Mean Reversion',type:'reversion',typeTxt:'Mean Reversion',
+   desc:'Cuando el precio toca la banda superior o inferior de las Bollinger Bands con el RSI en zona extrema, el precio tiende a volver hacia la banda media (EMA20). Funciona bien en mercados laterales.',
+   markets:['Forex','Indices en rango','Materias primas'],tf:'1H / 4H',
+   steps:[
+     {t:'Confirma que el mercado esta en rango lateral (ADX por debajo de 20).'},
+     {t:'Añade Bollinger Bands (20,2) y RSI(14).'},
+     {t:'Para SHORT: el precio cierra por encima de la banda superior Y el RSI esta por encima de 70.'},
+     {t:'Para LONG: el precio cierra por debajo de la banda inferior Y el RSI esta por debajo de 30.'},
+     {t:'Busca vela de confirmacion: vela bajista despues de tocar banda superior para short, vela alcista despues de banda inferior para long.'},
+     {t:'Entra en la apertura de la siguiente vela tras la confirmacion.'},
+     {t:'Stop Loss: 0.5% mas alla de la banda tocada (por encima de la superior para shorts, bajo la inferior para longs).'},
+     {t:'Take Profit: la banda media (EMA20 de las Bollinger Bands).'},
+   ],
+   entry:'Vela de confirmacion tras tocar banda extrema',sl:'0.5% mas alla de la banda',tp:'Banda media (EMA20)',
+   winrate:'58-65%',rr:'1:1.2',timeframe:'1H-4H',difficulty:'Basico',
+   tip:'Esta estrategia FALLA en mercados con tendencia fuerte. Usa el ADX para filtrar: solo opera esta estrategia cuando el ADX esta por debajo de 20 (mercado lateral). Con ADX alto, el precio puede seguir en la banda externa mucho tiempo.'},
+
+  {name:'VWAP Reversion Intraday',type:'reversion',typeTxt:'Mean Reversion',
+   desc:'El VWAP es el precio medio ponderado por volumen del dia. Los institucionales usan el VWAP como referencia. Cuando el precio se aleja demasiado del VWAP, tiende a volver.',
+   markets:['Futuros ES/NQ','Acciones de gran capitalizacion'],tf:'5min / 15min',
+   steps:[
+     {t:'Añade el VWAP en el grafico intraday (se resetea cada dia).'},
+     {t:'Calcula las desviaciones estandar: 1 SD y 2 SD por encima y por debajo del VWAP.'},
+     {t:'Para SHORT: el precio toca o supera la 2a desviacion estandar por encima del VWAP.'},
+     {t:'Confirma con RSI(9) por encima de 75 en el grafico de 5 minutos.'},
+     {t:'Espera vela de confirmacion bajista (cuerpo bajista de mas del 50% del rango de la vela).'},
+     {t:'Entra al cierre de la vela de confirmacion.'},
+     {t:'Stop Loss: 3-5 ticks por encima del maximo de la vela de señal.'},
+     {t:'Take Profit: VWAP (primera desviacion en operaciones conservadoras).'},
+   ],
+   entry:'Vela bajista en 2a desviacion sobre VWAP',sl:'3-5 ticks sobre maximo de señal',tp:'VWAP o 1a desviacion',
+   winrate:'55-62%',rr:'1:1.5',timeframe:'5-15min',difficulty:'Intermedio',
+   tip:'Mejor en dias sin grandes catalizadores (no en dias de NFP, IPC, earnings). La magia ocurre entre las 10:30 y las 14:00 EST cuando el mercado busca equilibrio. Evitar la primera hora y la ultima hora de sesion.'},
+
+  // ── RANGO ──
+  {name:'Support and Resistance Bounce',type:'range',typeTxt:'Rango',
+   desc:'La estrategia mas pura de analisis tecnico. Identifica soporte y resistencia fuertes. Opera el rebote cuando el precio llega al nivel con señal de confirmacion.',
+   markets:['Cualquier mercado'],tf:'4H / Diario',
+   steps:[
+     {t:'Identifica niveles de soporte y resistencia HISTORICOS: zonas donde el precio ha rebotado al menos 2-3 veces.'},
+     {t:'Los niveles mas potentes son los que tienen muchos toques y los redondos psicologicos (5000, 100, 1.1000).'},
+     {t:'Cuando el precio se acerca a un soporte, cambia a un marco temporal inferior (de diario a 1H) para buscar la señal de entrada.'},
+     {t:'Señal de entrada en soporte: Hammer, Pin Bar o vela envolvente alcista CON cierre por encima del soporte.'},
+     {t:'Confirma con volumen: la vela de señal debe tener mayor volumen que las anteriores.'},
+     {t:'Entra en la apertura de la siguiente vela tras la señal.'},
+     {t:'Stop Loss: por debajo del soporte (al menos 5-10 ticks para evitar falsas rupturas).'},
+     {t:'Take Profit: la siguiente resistencia importante. Ajusta el stop a breakeven cuando alcances 1R de ganancia.'},
+   ],
+   entry:'Señal de vela en soporte/resistencia historica',sl:'Al otro lado del nivel',tp:'Siguiente nivel S/R',
+   winrate:'55-63%',rr:'1:2',timeframe:'4H-Diario',difficulty:'Basico',
+   tip:'La clave es la CALIDAD del nivel, no la cantidad de estrategias. Un soporte con 5 toques en 2 años es mucho mas valioso que uno con 2 toques en 1 semana. Menos señales pero de mayor calidad.'},
+
+  {name:'Inside Bar Breakout',type:'breakout',typeTxt:'Ruptura',
+   desc:'Una Inside Bar (barra interna) es una vela completamente dentro del rango de la vela anterior (madre). Indica indecision y compresion de volatilidad. La ruptura de la barra madre da una señal de movimiento direccional.',
+   markets:['Forex','Futuros','Acciones'],tf:'4H / Diario',
+   steps:[
+     {t:'Identifica una Inside Bar: el maximo debe ser menor que el maximo de la vela anterior (madre) Y el minimo mayor que el minimo de la madre.'},
+     {t:'El setup es mas potente si hay 2 o 3 Inside Bars consecutivas (mayor compresion).'},
+     {t:'Para operar en tendencia: solo busca rupturas en la direccion de la tendencia principal (EMA200).'},
+     {t:'Coloca una orden de entrada (buy stop) 1 tick por encima del maximo de la barra madre.'},
+     {t:'Coloca simultaneamente un Stop Loss 1 tick por debajo del minimo de la barra madre.'},
+     {t:'Si el precio rompe primero el minimo (toca tu SL), la señal alcista se invalida.'},
+     {t:'Take Profit: 2x la distancia entre el maximo y minimo de la barra madre.'},
+   ],
+   entry:'Ruptura del maximo de la barra madre (orden buy stop)',sl:'Bajo minimo de la barra madre',tp:'2x rango de la barra madre',
+   winrate:'50-55%',rr:'1:2',timeframe:'4H-Diario',difficulty:'Intermedio',
+   tip:'Las Inside Bars en tendencia son mucho mas potentes que las en mercados laterales. Busca Inside Bars en zonas de soporte/resistencia clave para mayor probabilidad de exito.'},
+
+  // ── SCALPING ──
+  {name:'5-3-1 Scalping (Precio Puro)',type:'scalp',typeTxt:'Scalping',
+   desc:'Estrategia de scalping basada en el movimiento del precio sin indicadores. Opera los "imanes de liquidez": niveles donde los stops se acumulan. En y out rapido.',
+   markets:['Futuros ES/NQ/CL','Forex major pairs'],tf:'1min / 3min',
+   steps:[
+     {t:'Identifica los maximos y minimos de las ultimas 4 horas en grafico de 5 minutos.'},
+     {t:'Estos niveles son "imanes" donde se acumulan stops. El precio tiende a ir a buscarlos.'},
+     {t:'En grafico de 1-3 minutos, espera que el precio se acerque a 3-5 ticks del nivel.'},
+     {t:'Busca rechazo: una vela con mecha larga hacia el nivel pero cuerpo en la direccion opuesta.'},
+     {t:'Entra al cierre de la vela de rechazo en la direccion opuesta al nivel.'},
+     {t:'Stop Loss: 3-4 ticks mas alla del nivel que se rechazo.'},
+     {t:'Take Profit: 6-8 ticks (suficiente para R/R 1:2 con stop de 3-4 ticks). Salida rapida.'},
+     {t:'Maximo 3-5 operaciones al dia. Calidad sobre cantidad.'},
+   ],
+   entry:'Vela de rechazo en nivel de liquidez',sl:'3-4 ticks mas alla del nivel',tp:'6-8 ticks (R/R 1:2)',
+   winrate:'55-65%',rr:'1:2',timeframe:'1-3min',difficulty:'Avanzado',
+   tip:'El scalping requiere ejecucion rapidisima y spreads muy bajos. No apto para brokers con spreads altos. Es el estilo con mayor curva de aprendizaje pero potencialmente muy rentable con cuenta pequena.'},
+
+  {name:'London Open Scalp',type:'scalp',typeTxt:'Scalping',
+   desc:'La apertura de Londres (8:00 CET) trae el mayor volumen de forex del dia. El precio suele hacer un movimiento inicial fuerte en los primeros 30 minutos. Esta estrategia opera ese movimiento.',
+   markets:['EUR/USD','GBP/USD','EUR/GBP'],tf:'5min / 15min',
+   steps:[
+     {t:'Marca el rango de precio de las ultimas 2 horas antes de la apertura de Londres (6:00-8:00 CET, sesion asiatica tardia).'},
+     {t:'El rango asiatico suele ser estrecho. La apertura de Londres rompe este rango.'},
+     {t:'Coloca ordenes buy stop 2-3 pips por encima del maximo del rango asiatico y sell stop 2-3 pips por debajo del minimo.'},
+     {t:'Cuando una de las ordenes se active, cancela inmediatamente la otra (OCO).'},
+     {t:'Stop Loss: en el extremo opuesto del rango asiatico.'},
+     {t:'Take Profit: 1x o 1.5x el rango asiatico proyectado desde el punto de entrada.'},
+     {t:'Si no hay movimiento en los primeros 45 minutos de apertura, cancela ambas ordenes.'},
+   ],
+   entry:'Ruptura del rango asiatico en apertura Londres',sl:'Extremo opuesto del rango asiatico',tp:'1-1.5x rango asiatico',
+   winrate:'52-58%',rr:'1:1.5',timeframe:'5-15min',difficulty:'Intermedio',
+   tip:'Esta estrategia falla en dias de baja volatilidad y funciona mejor cuando hay datos macro europeos importantes esa mañana. El lunes suele tener el menor movimiento. El martes-jueves son los mejores dias.'},
+
+  // ── SWING ──
+  {name:'3-Bar Reversal Pattern',type:'swing',typeTxt:'Swing',
+   desc:'Patron de 3 velas que señala un posible cambio de tendencia. Una vela de tendencia fuerte seguida de una vela de indecision y luego una vela que confirma el giro. Muy efectivo en niveles clave.',
+   markets:['Acciones','Futuros','Forex'],tf:'Diario / 4H',
+   steps:[
+     {t:'Contexto: el precio esta en tendencia bajista y llega a soporte importante (o en tendencia alcista llegando a resistencia).'},
+     {t:'Vela 1 (señal): vela bajista grande que llega al soporte. El precio esta sobreextendido.'},
+     {t:'Vela 2 (indecision): vela pequena (Doji, Inside Bar) que no progresa en la direccion de la tendencia. Puede ser alcista o bajista.'},
+     {t:'Vela 3 (confirmacion): vela alcista que cierra por encima del maximo de la vela 2. Esta es la confirmacion del giro.'},
+     {t:'Entra en la apertura de la vela 4 (la siguiente tras la confirmacion).'},
+     {t:'Stop Loss: por debajo del minimo de la vela 1 (el minimo del patron completo).'},
+     {t:'Take Profit: retroceso del 50% o 61.8% Fibonacci del movimiento bajista previo.'},
+   ],
+   entry:'Apertura de la vela 4 tras confirmacion del patron',sl:'Bajo minimo de la vela 1',tp:'50-61.8% Fib del movimiento previo',
+   winrate:'52-58%',rr:'1:2',timeframe:'4H-Diario',difficulty:'Intermedio',
+   tip:'El patron es mucho mas potente cuando la vela 1 llega a un soporte historico importante, nivel de Fibonacci o zona de valor del Market Profile. El contexto lo es todo.'},
+
+  {name:'Swing en Soporte con Confirmacion Multiple',type:'swing',typeTxt:'Swing',
+   desc:'Estrategia de swing que combina soporte tecnico, sobrevendido en RSI, volumen de entrada y señal de vela para dar una señal de alta probabilidad. Menos señales pero muy fiables.',
+   markets:['Acciones S&P500','ETFs','Futuros ES'],tf:'Diario',
+   steps:[
+     {t:'Tendencia alcista de largo plazo (precio sobre EMA200 semanal).'},
+     {t:'El precio retrocede hasta una zona de confluencia: soporte horizontal + nivel Fibonacci (38.2%, 50% o 61.8% del ultimo impulso).'},
+     {t:'RSI(14) diario entre 30-45 (sobrevendido moderado en tendencia alcista).'},
+     {t:'El precio muestra una vela de rechazo en la zona de confluencia (Pin Bar, Hammer o Envolvente alcista).'},
+     {t:'El volumen del dia de la vela de señal es mayor que la media de 10 dias (dinero entrando).'},
+     {t:'Entra al dia siguiente en la apertura (o en intraday si usas el 1H para afinar).'},
+     {t:'Stop Loss: debajo del minimo de la vela de señal o bajo el nivel de Fibonacci.'},
+     {t:'Take Profit: nuevo maximo historico o siguiente resistencia mayor. Trailing stop tras 2R.'},
+   ],
+   entry:'Apertura tras señal de vela en confluencia',sl:'Bajo minimo de señal o nivel Fib',tp:'Siguiente resistencia mayor o ATH',
+   winrate:'60-68%',rr:'1:3',timeframe:'Diario',difficulty:'Intermedio',
+   tip:'La confluencia de factores es lo que hace a esta estrategia de alta probabilidad. Un solo factor no es suficiente. Cuantos mas factores confluyan en el mismo nivel, mas probable es el rebote.'},
+
+  // ── POSICIONAL ──
+  {name:'Value Investing + Tecnico (CANSLIM simplificado)',type:'positional',typeTxt:'Posicional',
+   desc:'Combinacion de analisis fundamental (empresa con crecimiento fuerte) y analisis tecnico (entrada en ruptura de base). La estrategia de William ONeil adaptada para el trader moderno.',
+   markets:['Acciones growth EEUU'],tf:'Semanal / Diario',
+   steps:[
+     {t:'Busca empresas con crecimiento de EPS superior al 25% en los ultimos 2-3 trimestres consecutivos.'},
+     {t:'Crecimiento de ventas mayor al 20% y margenes netos crecientes.'},
+     {t:'El precio debe estar en maximo de 52 semanas o cerca de el (fuerza relativa alta).'},
+     {t:'El grafico semanal debe mostrar una "base": consolidacion de al menos 5-7 semanas con volumen seco (sin grandes ventas).'},
+     {t:'Identifica el "punto de compra": el nivel del maximo de la base.'},
+     {t:'Entra cuando el precio supera ese nivel con volumen del 40-50% mayor que la media de 50 dias.'},
+     {t:'Stop Loss: 7-8% por debajo del punto de compra (regla fija de CANSLIM).'},
+     {t:'Take Profit: 20-25% desde el punto de compra (vende si llega al objetivo en menos de 3 semanas = señal de fuerza extrema, mantener).'},
+   ],
+   entry:'Ruptura del maximo de la base con volumen alto',sl:'7-8% bajo punto de compra',tp:'20-25% desde entrada',
+   winrate:'40-50%',rr:'1:3',timeframe:'Diario-Semanal',difficulty:'Avanzado',
+   tip:'Esta estrategia requiere paciencia. Solo 1-3 señales al mes de calidad. Las mejores oportunidades son en mercados alcistas (IBD Market Trend en "Confirmed Uptrend"). Evita completamente en mercados bajistas.'},
+
+  {name:'Trend Following con ETFs (Momentum Mensual)',type:'positional',typeTxt:'Posicional',
+   desc:'Estrategia sistematica que invierte en los ETFs con mayor momentum en los ultimos 12 meses y evita los peores. Rebalancea mensualmente. Simple, mecanica y con buen historial a largo plazo.',
+   markets:['ETFs de sectores y paises'],tf:'Mensual',
+   steps:[
+     {t:'Crea un universo de 10-15 ETFs diversificados: SPY, QQQ, IWM, EFA, EEM, GLD, TLT, DBC, VNQ, XLE, XLK, XLV.'},
+     {t:'Al final de cada mes, calcula el rendimiento de los ultimos 12 meses de cada ETF.'},
+     {t:'Rankea los ETFs de mayor a menor rendimiento.'},
+     {t:'Invierte equitativamente en los 3-5 ETFs con mayor rendimiento (el top momentum).'},
+     {t:'Filtro de seguridad: si un ETF del top esta por debajo de su SMA200, reemplazalo por letras del Tesoro o ETF de bonos cortos.'},
+     {t:'Al mes siguiente, repite el ranking y ajusta la cartera segun sea necesario.'},
+     {t:'Costes de transaccion: solo cambia posiciones si el cambio es mayor al 5% del portfolio.'},
+   ],
+   entry:'Top 3-5 ETFs por momentum a 12 meses',sl:'SMA200 como filtro de seguridad',tp:'Rebalanceo mensual sistematico',
+   winrate:'No aplica (sistematico)',rr:'1:4+ largo plazo',timeframe:'Mensual',difficulty:'Basico',
+   tip:'Esta es la estrategia para el inversor que quiere buenos resultados con minimo tiempo. Solo necesitas 30 minutos al mes. Historicamente ha superado al Buy&Hold del S&P con menor drawdown maximo.'},
+
+  // ── ESTRATEGIAS CON INDICADORES ──
+  {name:'Supertrend + EMA200',type:'trend',typeTxt:'Tendencia',
+   desc:'El indicador Supertrend genera señales de compra y venta muy claras visualmente. Filtrado con la EMA200 para solo operar en la direccion de la tendencia principal reduce significativamente las señales falsas.',
+   markets:['Crypto','Futuros','Acciones'],tf:'4H / Diario',
+   steps:[
+     {t:'Añade el indicador Supertrend (configuracion 10, 3) y la EMA200.'},
+     {t:'Regla de filtro: solo buscar LONGS si el precio esta sobre la EMA200. Solo SHORTS si esta bajo la EMA200.'},
+     {t:'Señal LONG: el Supertrend cambia de rojo a VERDE (precio cruza por encima del Supertrend).'},
+     {t:'Confirma que el Supertrend verde ocurre con el precio por encima de la EMA200.'},
+     {t:'Entra en la apertura de la siguiente vela tras el cambio de color.'},
+     {t:'Stop Loss: justo debajo del nivel del Supertrend en el momento de la entrada.'},
+     {t:'Gestion: mueve el stop al nivel del Supertrend cada vez que cambia. Es un trailing stop automatico.'},
+     {t:'Salida: cuando el Supertrend vuelve a cambiar de color (de verde a rojo).'},
+   ],
+   entry:'Cambio de color Supertrend en direccion de EMA200',sl:'Nivel actual del Supertrend',tp:'Siguiente cambio de color del Supertrend',
+   winrate:'45-52%',rr:'1:3+',timeframe:'4H-Diario',difficulty:'Basico',
+   tip:'El Supertrend funciona como trailing stop automatico visual. En tendencias fuertes puede capturar movimientos muy grandes. El problema es que en mercados laterales da muchas señales falsas.'},
+
+  {name:'RSI Divergence Trading',type:'reversion',typeTxt:'Mean Reversion',
+   desc:'Las divergencias entre el precio y el RSI señalan agotamiento de la tendencia. El precio hace nuevos extremos pero el RSI no los confirma, indicando que el movimiento se esta debilitando.',
+   markets:['Forex','Acciones','Crypto'],tf:'1H / 4H / Diario',
+   steps:[
+     {t:'En una tendencia alcista, observa si el precio hace un NUEVO MAXIMO (Higher High).'},
+     {t:'Mira el RSI: si el RSI hace un maximo MAS BAJO que el maximo anterior (Lower High en el RSI), hay DIVERGENCIA BAJISTA.'},
+     {t:'La divergencia es mas potente si ocurre en zona sobrecomprada del RSI (>65-70).'},
+     {t:'Confirma la divergencia con una vela bajista o una ruptura de linea de tendencia en el precio.'},
+     {t:'Entra short tras la confirmacion de la divergencia.'},
+     {t:'Stop Loss: por encima del maximo del precio que formo la divergencia.'},
+     {t:'Take Profit: soporte previo o retroceso del 38.2-50% Fibonacci del movimiento alcista.'},
+     {t:'Para divergencias alcistas: exactamente lo opuesto (precio hace Lower Low pero RSI hace Higher Low).'},
+   ],
+   entry:'Primera vela de confirmacion tras divergencia',sl:'Sobre el maximo (bajista) o bajo minimo (alcista)',tp:'Soporte/resistencia previa o Fib 38.2-50%',
+   winrate:'50-58%',rr:'1:2',timeframe:'1H-Diario',difficulty:'Intermedio',
+   tip:'Las divergencias son alertas, no señales de entrada inmediatas. Necesitan confirmacion de precio (ruptura de estructura, vela de confirmacion). Sin confirmacion, el precio puede seguir haciendo nuevos extremos.'},
+
+  {name:'Stochastic + Soporte (Precision Entry)',type:'reversion',typeTxt:'Mean Reversion',
+   desc:'Combina el Stochastic Oscillator con niveles de soporte/resistencia para entradas de alta precision. Cuando el stochastic esta sobrevendido Y el precio esta en soporte, la probabilidad es maxima.',
+   markets:['Forex','Futuros','Acciones'],tf:'1H / 4H',
+   steps:[
+     {t:'Identifica nivel de soporte horizontal importante (al menos 2-3 toques previos).'},
+     {t:'Añade Stochastic (14,3,3) en el sub-grafico.'},
+     {t:'Espera que el precio llegue al soporte Y simultaneamente el stochastic este por debajo de 20.'},
+     {t:'Señal de compra: el stochastic (%K) cruza por encima de la linea %D, ambas por debajo de 20.'},
+     {t:'Adicionalmente: confirma con una vela de señal positiva en el soporte (Hammer o cierre fuerte).'},
+     {t:'Entra en la apertura de la siguiente vela.'},
+     {t:'Stop Loss: 10-15 pips/ticks por debajo del soporte.'},
+     {t:'Take Profit: siguiente resistencia horizontal. Cierra el 50% del tamano en el primer objetivo.'},
+   ],
+   entry:'Cruce del Stochastic desde zona sobrevendida en soporte',sl:'Bajo soporte tecnico',tp:'Siguiente resistencia horizontal',
+   winrate:'60-66%',rr:'1:1.5',timeframe:'1H-4H',difficulty:'Basico',
+   tip:'La confluencia de soporte tecnico + stochastic sobrevendido + señal de vela es una de las mejores combinaciones en trading. El timing del stochastic dentro del soporte es la clave.'},
+
+  // ── ESTRATEGIAS DE OPCIONES ──
+  {name:'Covered Call (Ingreso con Acciones)',type:'positional',typeTxt:'Posicional',
+   desc:'Si tienes 100 acciones de una empresa, puedes vender una call por encima del precio actual y cobrar la prima. Si las acciones no suben hasta el strike, te quedas la prima. Genera ingresos recurrentes.',
+   markets:['Acciones USA (minimo 100 acciones)'],tf:'Mensual',
+   steps:[
+     {t:'Requiere tener 100 acciones (o multiplos de 100) de la empresa.'},
+     {t:'Elige un strike de la call: tipicamente 5-10% por encima del precio actual.'},
+     {t:'Elige vencimiento: 30-45 dias es el optimo para el decaimiento temporal (theta).'},
+     {t:'Vende 1 contrato de call por cada 100 acciones que tengas. Cobras la prima inmediatamente.'},
+     {t:'Si al vencimiento el precio esta bajo el strike: la call vence sin valor. Quedas la prima completa. Repite el mes siguiente.'},
+     {t:'Si el precio supera el strike: tus acciones son "llamadas" (compradas) al precio del strike. Vendes las acciones al strike pero te quedas la prima cobrada.'},
+     {t:'Esto limita tu ganancia maxima pero genera ingresos regulares.'},
+   ],
+   entry:'Venta de call OTM (Out of The Money) con 30-45 dias',sl:'No aplica (ya tienes las acciones)',tp:'Prima cobrada como ingreso recurrente',
+   winrate:'70-80% (la call vence sin valor)',rr:'Limitado al alza, prima cobrada al mes',timeframe:'Mensual',difficulty:'Intermedio',
+   tip:'Estrategia ideal para acciones que crees que van a ser laterales o con subida moderada. Genera 1-3% mensual sobre el valor de las acciones en condiciones normales. No apta si crees que la accion va a subir mucho.'},
+
+  {name:'Cash Secured Put (Comprar Acciones con Descuento)',type:'positional',typeTxt:'Posicional',
+   desc:'Vendes una put por debajo del precio actual. Cobras la prima. Si las acciones caen hasta el strike, las compras al precio del strike pero con un descuento efectivo (prima cobrada). Si no caen, te quedas la prima.',
+   markets:['Acciones USA que quieras tener'],tf:'Mensual',
+   steps:[
+     {t:'Elige una empresa que quieras comprar si bajase un 5-10%.'},
+     {t:'Vende una put con strike 5-10% por debajo del precio actual.'},
+     {t:'El dinero del strike debe estar en tu cuenta (cash secured): si el strike es 95$, tienes que reservar 9.500$ por contrato.'},
+     {t:'Vencimiento: 30-45 dias.'},
+     {t:'Cobras la prima inmediatamente al vender la put.'},
+     {t:'Escenario 1: el precio no cae hasta el strike al vencimiento. La put vence sin valor. Te quedas la prima. Repite el proceso.'},
+     {t:'Escenario 2: el precio cae por debajo del strike. Te asignan 100 acciones al precio del strike, pero tu coste efectivo es strike - prima cobrada.'},
+     {t:'Con las acciones asignadas, puedes empezar a vender covered calls (estrategia anterior).'},
+   ],
+   entry:'Venta de put OTM con 30-45 dias',sl:'El precio de asignacion ya es el "descuento" que aceptaste',tp:'Prima cobrada como ingreso',
+   winrate:'75-85% (la put vence sin valor)',rr:'Prima mensual vs compra con descuento',timeframe:'Mensual',difficulty:'Intermedio',
+   tip:'Esta es una de las estrategias favoritas de Warren Buffett. El genera ingresos vendiendo puts de empresas que le gustaria comprar. Si le asignan las acciones, las considera compradas a buen precio.'},
+
+  // ── ESTRATEGIAS CRYPTO ──
+  {name:'Bitcoin DCA (Dollar Cost Averaging)',type:'positional',typeTxt:'Posicional',
+   desc:'Comprar una cantidad fija de Bitcoin periodicamente (semanal o mensual) independientemente del precio. Elimina el timing y promedia el precio de entrada a lo largo del tiempo.',
+   markets:['BTC/USD','ETH/USD'],tf:'Semanal / Mensual',
+   steps:[
+     {t:'Decide la cantidad mensual que puedes permitirte invertir en crypto (solo dinero que puedas permitirte perder).'},
+     {t:'Divide esa cantidad en 4 partes iguales (una por semana).'},
+     {t:'Cada semana, el mismo dia y hora, compra esa cantidad en tu exchange sin mirar el precio.'},
+     {t:'No vendas en caidas. No compres extra en subidas. Mantente en el plan.'},
+     {t:'Guarda en wallet propia (no en exchange) si la cantidad es significativa (>1.000$).'},
+     {t:'Horizonte temporal minimo: 2-4 años (ciclo de Bitcoin). El halving ocurre cada 4 años.'},
+     {t:'Regla de venta: considera reducir posicion (no cerrar) si el precio sube mas del 100% en menos de 3 meses.'},
+   ],
+   entry:'Compra periodica sistematica (DCA)',sl:'No aplica en DCA',tp:'Objetivo de precio personal o ciclo de halving',
+   winrate:'No aplica (sistematico)',rr:'Historicamente muy favorable en ciclos de 4 años',timeframe:'Mensual-Años',difficulty:'Basico',
+   tip:'La mayoria de inversores retail en crypto pierden dinero por el FOMO (comprar en techos) y el panico (vender en suelos). El DCA elimina ambos errores psicologicos. Los datos historicos muestran que el DCA en BTC en cualquier punto de los ultimos 4 años habria sido rentable a los 4 años.'},
+
+  {name:'Crypto Range Trade (Altcoins)',type:'range',typeTxt:'Rango',
+   desc:'Las altcoins pasan mucho tiempo en rangos de precio entre soporte y resistencia. Comprar en soporte y vender en resistencia repetidamente genera buenos rendimientos en mercados laterales.',
+   markets:['ETH/BTC','Altcoins vs USDT'],tf:'4H / Diario',
+   steps:[
+     {t:'Identifica una altcoin que lleve semanas en un rango claro entre soporte y resistencia.'},
+     {t:'El rango debe ser de al menos el 20-30% de amplitud para que sea rentable operar despues de fees.'},
+     {t:'Divide tu capital en 3 partes: compra la primera parte cuando el precio llegue al soporte.'},
+     {t:'Si el precio sigue bajando, compra la segunda parte en el 50% del rango (promedias hacia abajo solo si el soporte esta confirmado).'},
+     {t:'Tercera parte de reserva para emergencias o para aumentar si hay señal tecnica muy fuerte.'},
+     {t:'Stop Loss: cierre diario por debajo del soporte (invalida el rango y puede ser ruptura bajista).'},
+     {t:'Take Profit: resistencia superior del rango. Vende el 50-70% de la posicion. Mantiene el resto por si rompe al alza.'},
+   ],
+   entry:'Soporte del rango con señal de vela',sl:'Cierre bajo soporte (invalida rango)',tp:'Resistencia del rango',
+   winrate:'55-62%',rr:'1:2 en el rango',timeframe:'4H-Diario',difficulty:'Intermedio',
+   tip:'Los rangos en crypto pueden durar semanas o meses. La clave es identificar rangos maduros (con muchos toques) y siempre tener reserva de capital para el escenario en que el rango se rompa a la baja.'},
+
+  // ── ESTRATEGIAS FOREX AVANZADAS ──
+  {name:'Sesion de Nueva York Momentum',type:'breakout',typeTxt:'Ruptura',
+   desc:'La apertura de Nueva York (15:30 CET) trae el mayor volumen del dia al forex. Los movimientos mas importantes del dia suelen ocurrir en las primeras 2 horas de la sesion americana.',
+   markets:['EUR/USD','GBP/USD','USD/JPY'],tf:'15min / 1H',
+   steps:[
+     {t:'Identifica la tendencia de la sesion de Londres (8:00-15:30 CET): ¿ha subido o bajado el EUR/USD?'},
+     {t:'Marca el rango de precio de las dos horas previas a la apertura de NY (13:30-15:30 CET).'},
+     {t:'En la apertura de NY, si hay datos macro americanos (14:30 CET), espera la reaccion inicial.'},
+     {t:'Señal de entrada: el precio rompe el rango previo a NY EN LA DIRECCION de la tendencia de Londres.'},
+     {t:'La ruptura debe ocurrir en los primeros 15-30 minutos de apertura de NY.'},
+     {t:'Stop Loss: dentro del rango (bajo el minimo para long, sobre el maximo para short).'},
+     {t:'Take Profit: maximo de la sesion de Londres + 20-30 pips para longs.'},
+   ],
+   entry:'Ruptura del rango pre-NY en direccion tendencia Londres',sl:'Dentro del rango pre-NY',tp:'Extencion del maximo/minimo de sesion Londres',
+   winrate:'52-58%',rr:'1:2',timeframe:'15min-1H',difficulty:'Intermedio',
+   tip:'La confluencia de apertura NY con datos macro americanos es la combinacion mas potente. Un NFP positivo + apertura NY + tendencia alcista de Londres en el EUR/USD puede generar movimientos de 100+ pips.'},
+
+  {name:'Fibonacci Confluence Trade',type:'reversion',typeTxt:'Mean Reversion',
+   desc:'Los niveles de Fibonacci son mas potentes cuando multiples Fibonacci de distintos marcos temporales convergen en la misma zona. Esa confluencia actua como un iman para el precio.',
+   markets:['Forex','Futuros','Acciones'],tf:'4H / Diario',
+   steps:[
+     {t:'En el grafico diario, dibuja el retroceso de Fibonacci del ultimo movimiento mayor (impulso).'},
+     {t:'Identifica los niveles 38.2%, 50% y 61.8%.'},
+     {t:'En el grafico de 4H, dibuja otro Fibonacci del movimiento de 4H dentro del retroceso diario.'},
+     {t:'Busca una zona donde 2 o mas niveles de Fibonacci de distintos marcos temporales coincidan en un rango de 10-20 pips.'},
+     {t:'Esa zona es la "confluencia Fibonacci". Es de alta probabilidad para rebote.'},
+     {t:'Espera que el precio llegue a la zona de confluencia y muestre señal de vela.'},
+     {t:'Entra con stop por debajo de toda la zona de confluencia.'},
+     {t:'Take Profit: el punto de inicio del retroceso (el swing High previo).'},
+   ],
+   entry:'Señal de vela en zona de confluencia Fibonacci',sl:'Bajo toda la zona de confluencia',tp:'Swing High/Low de inicio del retroceso',
+   winrate:'58-65%',rr:'1:2.5',timeframe:'4H-Diario',difficulty:'Avanzado',
+   tip:'La magia de la confluencia Fibonacci es que niveles de distintos marcos temporales creando la misma zona de soporte multiplica la probabilidad. Añade soporte horizontal y EMA a esa zona para mayor confluencia.'},
+];
+
+const STRAT_CATS = ['Todas','Tendencia','Ruptura','Mean Reversion','Rango','Scalping','Swing','Posicional'];
+let stratFilter = 'Todas';
+let stratExpanded = new Set();
+
+function renderStratCats() {
+  const counts = {};
+  STRATEGIES.forEach(s => { counts[s.typeTxt] = (counts[s.typeTxt]||0)+1; });
+  document.getElementById('strat-cats').innerHTML =
+    STRAT_CATS.map(c => {
+      const n = c === 'Todas' ? STRATEGIES.length : (counts[c]||0);
+      return '<button class="gcat-btn' + (c===stratFilter?' on':'') + '" onclick="setStratFilter(\'' + c + '\')">' + c + ' (' + n + ')</button>';
+    }).join('');
+}
+function setStratFilter(f) {
+  stratFilter = f;
+  renderStratCats();
+  renderStrats();
+}
+
+function renderStrats() {
+  const filtered = stratFilter === 'Todas' ? STRATEGIES : STRATEGIES.filter(s => s.typeTxt === stratFilter);
+  document.getElementById('strat-count').textContent = filtered.length + ' estrategias';
+  const typeBadge = {
+    'Tendencia':'sb-trend','Ruptura':'sb-break','Mean Reversion':'sb-rev',
+    'Rango':'sb-range','Scalping':'sb-scalp','Swing':'sb-swing','Posicional':'sb-pos'
+  };
+  const diffColor = {'Basico':'color:var(--grn)','Intermedio':'color:var(--amb)','Avanzado':'color:var(--red)'};
+  document.getElementById('strat-grid').innerHTML = filtered.map(s => {
+    const isOpen = stratExpanded.has(s.name);
+    const steps = s.steps.map((st,i) =>
+      '<div class="strat-step"><div class="strat-step-n">' + (i+1) + '</div><div class="strat-step-t">' + st.t + '</div></div>'
+    ).join('');
+    return '<div class="strat-card' + (isOpen?' open':'') + '" onclick="toggleStrat(\'' + s.name.replace(/'/g,"\\'") + '\')">'
+      + '<div class="strat-head">'
+      + '<div class="strat-top"><div class="strat-name">' + s.name + '</div>'
+      + '<div class="strat-badges"><span class="strat-badge ' + (typeBadge[s.typeTxt]||'sb-trend') + '">' + s.typeTxt + '</span></div>'
+      + '</div>'
+      + '<div class="strat-desc">' + s.desc + '</div>'
+      + '<div class="strat-tags">'
+      + s.markets.map(m => '<span class="strat-tag">' + m + '</span>').join('')
+      + '<span class="strat-tag">TF: ' + s.tf + '</span>'
+      + '<span class="strat-tag" style="' + (diffColor[s.difficulty]||'') + '">' + s.difficulty + '</span>'
+      + '</div>'
+      + '</div>'
+      + '<div class="strat-body">'
+      + '<div class="strat-sec">&#128204; Pasos de la estrategia</div>'
+      + steps
+      + '<div class="strat-sec">&#127919; Parametros clave</div>'
+      + '<div class="strat-box green"><strong>Entrada:</strong> ' + s.entry + '</div>'
+      + '<div class="strat-box red"><strong>Stop Loss:</strong> ' + s.sl + '</div>'
+      + '<div class="strat-box blue"><strong>Take Profit:</strong> ' + s.tp + '</div>'
+      + '<div class="strat-stats">'
+      + '<div class="stat-box"><div class="stat-lbl">Win Rate</div><div class="stat-val">' + s.winrate + '</div></div>'
+      + '<div class="stat-box"><div class="stat-lbl">R/R</div><div class="stat-val">' + s.rr + '</div></div>'
+      + '<div class="stat-box"><div class="stat-lbl">Timeframe</div><div class="stat-val" style="font-size:11px">' + s.timeframe + '</div></div>'
+      + '<div class="stat-box"><div class="stat-lbl">Dificultad</div><div class="stat-val" style="font-size:11px;' + (diffColor[s.difficulty]||'') + '">' + s.difficulty + '</div></div>'
+      + '</div>'
+      + '<div class="strat-sec">&#128161; Consejo del trader</div>'
+      + '<div class="strat-box amb">' + s.tip + '</div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+function toggleStrat(name) {
+  if (stratExpanded.has(name)) stratExpanded.delete(name);
+  else stratExpanded.add(name);
+  renderStrats();
+  if (stratExpanded.has(name)) {
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.strat-card.open');
+      if (cards.length) cards[cards.length-1].scrollIntoView({behavior:'smooth',block:'start'});
+    }, 100);
+  }
+}
+renderStratCats();
+renderStrats();
 </script>
 </body>
 </html>
