@@ -39,7 +39,104 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,san
 .nb.on{color:var(--t);background:var(--sf2);box-shadow:inset 0 0 0 1px var(--b2)}
 .nb .dot{width:4px;height:4px;border-radius:50%;opacity:0;transition:opacity .15s}
 .nb.on .dot{opacity:1}
-.dot-b{background:var(--blu)}.dot-a{background:var(--amb)}.dot-p{background:var(--pur)}
+.dot-b{background:var(--blu)}.dot-a{background:var(--amb)}.dot-p{background:var(--pur)}.dot-g{background:var(--grn)}.dot-t{background:var(--teal)}
+
+/* ── SESSIONS ── */
+.sess-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:2rem}
+.sess-card{background:var(--sf);border:1px solid var(--b);border-radius:12px;overflow:hidden;transition:border-color .2s}
+.sess-card:hover{border-color:var(--b2)}
+.sess-card.open{border-color:var(--grn);box-shadow:0 0 0 1px var(--grn)}
+.sess-card.pre{border-color:var(--amb)}
+.sess-card.closed{opacity:.7}
+.sess-header{padding:1.1rem 1.25rem;display:flex;align-items:center;justify-content:space-between}
+.sess-flag{font-size:22px;margin-right:10px}
+.sess-name{font-size:16px;font-weight:700;color:var(--t)}
+.sess-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.sess-status{font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;letter-spacing:.04em;text-transform:uppercase}
+.status-open{background:var(--gbg);color:var(--grn);border:1px solid rgba(63,185,80,.3)}
+.status-pre{background:var(--abg);color:var(--amb);border:1px solid rgba(210,153,34,.3)}
+.status-closed{background:var(--sf3);color:var(--t3);border:1px solid var(--b)}
+.sess-body{padding:0 1.25rem 1.25rem}
+.sess-times{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.sess-time-box{background:var(--sf2);border-radius:6px;padding:.6rem .8rem}
+.sess-time-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.sess-time-val{font-size:15px;font-weight:700;color:var(--t);font-variant-numeric:tabular-nums}
+.sess-progress-wrap{margin-bottom:12px}
+.sess-progress-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-bottom:5px}
+.sess-progress-bar{height:6px;background:var(--sf3);border-radius:3px;overflow:hidden}
+.sess-progress-fill{height:100%;border-radius:3px;transition:width .5s}
+.fill-open{background:linear-gradient(90deg,var(--grn),rgba(63,185,80,.5))}
+.fill-pre{background:linear-gradient(90deg,var(--amb),rgba(210,153,34,.5))}
+.fill-closed{background:var(--sf3)}
+.sess-pairs{display:flex;gap:6px;flex-wrap:wrap}
+.sess-pair{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;background:var(--sf3);color:var(--t2)}
+.sess-overlap{background:var(--sf);border:1px solid var(--b2);border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:1rem}
+.sess-overlap-title{font-size:13px;font-weight:700;color:var(--t);margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+.overlap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.overlap-card{background:var(--sf2);border-radius:8px;padding:.75rem 1rem;border:1px solid var(--b)}
+.overlap-card.active{border-color:var(--grn);background:var(--gbg)}
+.overlap-name{font-size:12px;font-weight:700;color:var(--t);margin-bottom:3px}
+.overlap-time{font-size:11px;color:var(--t3);margin-bottom:6px}
+.overlap-desc{font-size:11px;color:var(--t2);line-height:1.5}
+.overlap-active-badge{font-size:10px;font-weight:700;color:var(--grn);margin-left:8px}
+.sess-holiday{background:var(--rbg);border:1px solid rgba(248,81,73,.2);border-radius:8px;padding:.75rem 1rem;margin-top:.75rem;font-size:12px;color:var(--red)}
+
+/* ── EARNINGS ── */
+.earn-week{margin-bottom:2rem}
+.earn-week-title{font-size:13px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;padding:.75rem 0 .5rem;border-bottom:1px solid var(--b);margin-bottom:.75rem}
+.earn-day{margin-bottom:1.25rem}
+.earn-day-label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem;display:flex;align-items:center;gap:8px}
+.earn-day-label .today-badge{font-size:10px;background:var(--bbg);color:var(--blu);padding:2px 8px;border-radius:99px;font-weight:700}
+.earn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.earn-card{background:var(--sf);border:1px solid var(--b);border-radius:10px;padding:.9rem 1.1rem;transition:all .15s;cursor:pointer}
+.earn-card:hover{border-color:var(--b2);background:var(--sf2)}
+.earn-card.expanded{border-color:var(--b2);background:var(--sf2)}
+.earn-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.earn-ticker{font-size:16px;font-weight:800;color:var(--t);letter-spacing:-.01em}
+.earn-time-badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;white-space:nowrap;margin-top:2px}
+.earn-pre{background:var(--abg);color:var(--amb);border:1px solid rgba(210,153,34,.3)}
+.earn-post{background:var(--bbg);color:var(--blu);border:1px solid rgba(88,166,255,.3)}
+.earn-name{font-size:12px;color:var(--t2);margin-bottom:8px}
+.earn-metrics{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.earn-metric{background:var(--sf2);border-radius:5px;padding:.5rem .7rem}
+.earn-metric-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.earn-metric-val{font-size:13px;font-weight:700;color:var(--t)}
+.earn-sector{font-size:10px;font-weight:600;padding:2px 8px;border-radius:3px;display:inline-block}
+.earn-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--b)}
+.earn-card.expanded .earn-detail{display:block}
+.earn-detail-text{font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:.6rem}
+.earn-importance{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t3);margin-top:.5rem}
+.earn-imp-dot{width:8px;height:8px;border-radius:50%}
+.earn-imp-h{background:var(--red)}.earn-imp-m{background:var(--amb)}.earn-imp-l{background:var(--grn)}
+
+/* ── EARN CHART PANEL ── */
+.earn-chart-section{margin-top:14px;padding-top:14px;border-top:1px solid var(--b)}
+.earn-chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.earn-chart-title{font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em}
+.earn-consensus{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.earn-cons-label{font-size:11px;color:var(--t3)}
+.earn-cons-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;width:120px;gap:1px}
+.cons-buy{background:var(--grn)}.cons-hold{background:var(--amb)}.cons-sell{background:var(--red)}
+.earn-cons-verdict{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px}
+.verdict-buy{background:var(--gbg);color:var(--grn);border:1px solid rgba(63,185,80,.3)}
+.verdict-hold{background:var(--abg);color:var(--amb);border:1px solid rgba(210,153,34,.3)}
+.verdict-sell{background:var(--rbg);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+.earn-target{font-size:12px;color:var(--t2)}
+.earn-target strong{color:var(--t)}
+.earn-reactions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.earn-react-item{background:var(--sf3);border-radius:5px;padding:.35rem .65rem;text-align:center}
+.earn-react-q{font-size:9px;color:var(--t3);margin-bottom:2px}
+.earn-react-chg{font-size:12px;font-weight:700}
+.earn-react-up{color:var(--grn)}.earn-react-dn{color:var(--red)}
+.earn-tv-wrap{border-radius:8px;overflow:hidden;border:1px solid var(--b2)}
+.earn-tv-tabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.earn-tv-tab{font-size:11px;font-weight:600;padding:4px 12px;border-radius:5px;border:1px solid var(--b2);background:var(--sf2);color:var(--t2);cursor:pointer;transition:all .15s}
+.earn-tv-tab:hover{color:var(--t);background:var(--sf3)}
+.earn-tv-tab.on{background:var(--blu);border-color:var(--blu);color:#0d1117}
+.earn-trend-box{display:flex;align-items:center;gap:8px;padding:.6rem .9rem;border-radius:6px;margin-bottom:10px;font-size:12px}
+.trend-alcista{background:var(--gbg);border:1px solid rgba(63,185,80,.3);color:var(--grn)}
+.trend-bajista{background:var(--rbg);border:1px solid rgba(248,81,73,.3);color:var(--red)}
+.trend-neutral{background:var(--abg);border:1px solid rgba(210,153,34,.3);color:var(--amb)}
 .hright{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .clock{font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums;min-width:68px;text-align:right}
 .btn{display:flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;border-radius:6px;border:1px solid var(--b2);background:var(--sf2);color:var(--t2);cursor:pointer;transition:all .15s;font-weight:500}
@@ -252,6 +349,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,san
     <button class="nb" onclick="showPage('cal',this)">
       <span class="dot dot-a"></span><span class="nl">Calendario</span>
     </button>
+    <button class="nb" onclick="showPage('sess',this)">
+      <span class="dot dot-g"></span><span class="nl">Sesiones</span>
+    </button>
+    <button class="nb" onclick="showPage('earn',this)">
+      <span class="dot dot-t"></span><span class="nl">Earnings</span>
+    </button>
     <button class="nb" onclick="showPage('gl',this)">
       <span class="dot dot-p"></span><span class="nl">Glosario</span>
     </button>
@@ -317,6 +420,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,san
       </div>
     </div>
     <div id="cal-content"></div>
+  </div>
+</div>
+
+<!-- ═══ SESIONES ═══ -->
+<div class="page" id="pg-sess">
+  <div class="fullpage">
+    <div class="ph">
+      <h2>Sesiones de Mercado</h2>
+      <span style="font-size:12px;color:var(--t3)" id="sess-clock-label">Hora actual: —</span>
+    </div>
+    <div id="sess-content"></div>
+  </div>
+</div>
+
+<!-- ═══ EARNINGS ═══ -->
+<div class="page" id="pg-earn">
+  <div class="fullpage">
+    <div class="ph">
+      <h2>Earnings Calendar</h2>
+      <span style="font-size:12px;color:var(--t3)">Resultados trimestrales de empresas clave</span>
+    </div>
+    <div id="earn-content"></div>
   </div>
 </div>
 
@@ -843,9 +968,435 @@ renderGlossCats();
 filterGloss();
 
 // ─────────────────────────────────
-// INIT
+// SESIONES DE MERCADO
 // ─────────────────────────────────
-loadNews();
+const SESSIONS = [
+  {
+    id:'tokyo', name:'Tokio', flag:'🇯🇵', sub:'Bolsa de Tokio (TSE)',
+    openUTC:0, closeUTC:6, // 00:00 - 06:00 UTC
+    color:'var(--pur)',
+    pairs:['USD/JPY','EUR/JPY','AUD/JPY','GBP/JPY'],
+    indices:['Nikkei 225','TOPIX'],
+    desc:'Primera sesion del dia. Mueve principalmente pares con JPY. Volumen bajo en USD y EUR. Noticias de China y Australia tienen gran impacto.',
+  },
+  {
+    id:'london', name:'Londres', flag:'🇬🇧', sub:'London Stock Exchange (LSE)',
+    openUTC:8, closeUTC:16.5,
+    color:'var(--blu)',
+    pairs:['EUR/USD','GBP/USD','EUR/GBP','USD/CHF'],
+    indices:['FTSE 100','DAX 40','CAC 40','IBEX 35'],
+    desc:'La sesion mas importante de Europa. Mayor volumen del dia en forex. El FTSE, DAX e IBEX abren aqui. Datos macro europeos y del BCE mueven los mercados.',
+  },
+  {
+    id:'nyopen', name:'Nueva York', flag:'🇺🇸', sub:'NYSE & NASDAQ',
+    openUTC:13.5, closeUTC:20,
+    color:'var(--grn)',
+    pairs:['EUR/USD','USD/JPY','GBP/USD','USD/CAD'],
+    indices:['S&P 500','NASDAQ 100','Dow Jones','Russell 2000'],
+    desc:'La sesion con mayor volumen del mundo. Abre con los datos macro americanos (NFP, IPC). Los futuros ES y NQ son muy activos. La volatilidad es maxima en la apertura.',
+  },
+  {
+    id:'sydney', name:'Sidney', flag:'🇦🇺', sub:'Australian Securities Exchange (ASX)',
+    openUTC:22, closeUTC:6,
+    color:'var(--amb)',
+    pairs:['AUD/USD','NZD/USD','AUD/JPY','AUD/NZD'],
+    indices:['ASX 200'],
+    desc:'Abre el domingo por la tarde (hora europea). Movimiento bajo. Principalmente activa para pares con AUD y NZD. Anticipa la apertura de Tokio.',
+  },
+];
+
+const OVERLAPS = [
+  {name:'Tokio + Sidney', time:'00:00 - 02:00 UTC', utcStart:0, utcEnd:2, desc:'Solapamiento menor. Pares AUD/JPY y NZD/JPY mas activos.', sessions:['tokyo','sydney']},
+  {name:'Tokio + Londres', time:'08:00 - 09:00 UTC', utcStart:8, utcEnd:9, desc:'Volatilidad moderada. Pares JPY y EUR activos. Datos europeos del amanecer.', sessions:['tokyo','london']},
+  {name:'Londres + Nueva York', time:'13:30 - 16:30 UTC', utcStart:13.5, utcEnd:16.5, desc:'EL SOLAPAMIENTO MAS IMPORTANTE. Mayor volumen del dia. Spreads minimos. EUR/USD, GBP/USD muy activos. Ideal para trading intraday.', sessions:['london','nyopen']},
+];
+
+const US_HOLIDAYS_2025 = [
+  {date:'2025-01-01', name:'Año Nuevo'},
+  {date:'2025-01-20', name:'Martin Luther King Jr. Day'},
+  {date:'2025-02-17', name:'Presidents Day'},
+  {date:'2025-04-18', name:'Good Friday'},
+  {date:'2025-05-26', name:'Memorial Day'},
+  {date:'2025-07-04', name:'Independencia EEUU'},
+  {date:'2025-09-01', name:'Labor Day'},
+  {date:'2025-11-27', name:'Thanksgiving'},
+  {date:'2025-12-25', name:'Navidad'},
+];
+const EU_HOLIDAYS_2025 = [
+  {date:'2025-01-01', name:'Año Nuevo'},
+  {date:'2025-04-18', name:'Viernes Santo'},
+  {date:'2025-04-21', name:'Lunes de Pascua'},
+  {date:'2025-05-01', name:'Dia del Trabajo'},
+  {date:'2025-12-25', name:'Navidad'},
+  {date:'2025-12-26', name:'San Esteban'},
+];
+
+function getUTCHours() {
+  const now = new Date();
+  return now.getUTCHours() + now.getUTCMinutes() / 60;
+}
+
+function isSessionOpen(sess) {
+  const utc = getUTCHours();
+  const day = new Date().getUTCDay(); // 0=Sun, 6=Sat
+  if (day === 0 && sess.id !== 'sydney') return false;
+  if (day === 6) return false;
+  if (sess.openUTC < sess.closeUTC) {
+    return utc >= sess.openUTC && utc < sess.closeUTC;
+  } else {
+    return utc >= sess.openUTC || utc < sess.closeUTC;
+  }
+}
+
+function getTimeUntilOpen(sess) {
+  const utc = getUTCHours();
+  let diff = sess.openUTC - utc;
+  if (diff < 0) diff += 24;
+  return diff;
+}
+
+function getTimeUntilClose(sess) {
+  const utc = getUTCHours();
+  let diff;
+  if (sess.openUTC < sess.closeUTC) {
+    diff = sess.closeUTC - utc;
+  } else {
+    if (utc >= sess.openUTC) diff = sess.closeUTC + 24 - utc;
+    else diff = sess.closeUTC - utc;
+  }
+  return diff;
+}
+
+function getSessionProgress(sess) {
+  if (!isSessionOpen(sess)) return 0;
+  const utc = getUTCHours();
+  let elapsed, total;
+  if (sess.openUTC < sess.closeUTC) {
+    elapsed = utc - sess.openUTC;
+    total = sess.closeUTC - sess.openUTC;
+  } else {
+    total = (24 - sess.openUTC) + sess.closeUTC;
+    elapsed = utc >= sess.openUTC ? utc - sess.openUTC : (24 - sess.openUTC) + utc;
+  }
+  return Math.min(100, Math.max(0, (elapsed / total) * 100));
+}
+
+function formatUTCtoLocal(utcHour) {
+  const d = new Date();
+  d.setUTCHours(Math.floor(utcHour), (utcHour % 1) * 60, 0, 0);
+  return d.toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
+}
+
+function formatHoursLeft(h) {
+  const hh = Math.floor(h);
+  const mm = Math.floor((h % 1) * 60);
+  return hh + 'h ' + String(mm).padStart(2,'0') + 'min';
+}
+
+function isPreSession(sess) {
+  const utc = getUTCHours();
+  const diff = sess.openUTC > utc ? sess.openUTC - utc : (sess.openUTC + 24 - utc);
+  return diff > 0 && diff <= 1 && !isSessionOpen(sess);
+}
+
+function checkHoliday() {
+  const today = new Date().toISOString().slice(0,10);
+  const usHol = US_HOLIDAYS_2025.find(h => h.date === today);
+  const euHol = EU_HOLIDAYS_2025.find(h => h.date === today);
+  let msg = '';
+  if (usHol) msg += '&#127482;&#127480; Hoy es festivo en EEUU: ' + usHol.name + '. NYSE y NASDAQ cerrados. ';
+  if (euHol) msg += '&#127466;&#127482; Hoy es festivo en Europa: ' + euHol.name + '. Bolsas europeas cerradas.';
+  return msg;
+}
+
+function renderSessions() {
+  const clkEl = document.getElementById('sess-clock-label');
+  if (clkEl) {
+    const now = new Date();
+    clkEl.textContent = 'Hora local: ' + now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}) + ' | UTC: ' + now.toUTCString().slice(17,22);
+  }
+
+  const holiday = checkHoliday();
+  let html = '';
+
+  if (holiday) html += '<div class="sess-holiday">&#128308; ' + holiday + '</div><br>';
+
+  html += '<div class="sess-grid">';
+  SESSIONS.forEach(sess => {
+    const open = isSessionOpen(sess);
+    const pre = isPreSession(sess);
+    const progress = getSessionProgress(sess);
+    const statusCls = open ? 'open' : pre ? 'pre' : 'closed';
+    const statusTxt = open ? '&#9899; Abierta' : pre ? '&#9711; Proxima apertura' : '&#9898; Cerrada';
+    const timeLeft = open ? formatHoursLeft(getTimeUntilClose(sess)) : formatHoursLeft(getTimeUntilOpen(sess));
+    const timeLeftLabel = open ? 'Cierra en' : 'Abre en';
+    const openLocal = formatUTCtoLocal(sess.openUTC);
+    const closeLocal = formatUTCtoLocal(sess.closeUTC);
+    const pairs = sess.pairs.map(p => '<span class="sess-pair">' + p + '</span>').join('');
+    const fillCls = open ? 'fill-open' : pre ? 'fill-pre' : 'fill-closed';
+
+    html += '<div class="sess-card ' + (open?'open':pre?'pre':'closed') + '">'
+      + '<div class="sess-header">'
+      + '<div style="display:flex;align-items:center"><span class="sess-flag">' + sess.flag + '</span><div><div class="sess-name">' + sess.name + '</div><div class="sess-sub">' + sess.sub + '</div></div></div>'
+      + '<span class="sess-status status-' + statusCls + '">' + statusTxt + '</span>'
+      + '</div>'
+      + '<div class="sess-body">'
+      + '<div class="sess-times">'
+      + '<div class="sess-time-box"><div class="sess-time-lbl">Apertura (local)</div><div class="sess-time-val">' + openLocal + '</div></div>'
+      + '<div class="sess-time-box"><div class="sess-time-lbl">Cierre (local)</div><div class="sess-time-val">' + closeLocal + '</div></div>'
+      + '</div>'
+      + '<div class="sess-progress-wrap">'
+      + '<div class="sess-progress-lbl"><span>' + (open ? 'Sesion en curso' : timeLeftLabel + ' ' + timeLeft) + '</span><span>' + Math.round(progress) + '%</span></div>'
+      + '<div class="sess-progress-bar"><div class="sess-progress-fill ' + fillCls + '" style="width:' + progress + '%"></div></div>'
+      + '</div>'
+      + '<div style="font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:10px">' + sess.desc + '</div>'
+      + '<div class="sess-pairs">' + pairs + '</div>'
+      + '</div></div>';
+  });
+  html += '</div>';
+
+  // Overlaps
+  const utcNow = getUTCHours();
+  html += '<div class="sess-overlap"><div class="sess-overlap-title">&#128256; Solapamientos de sesiones</div><div class="overlap-grid">';
+  OVERLAPS.forEach(ov => {
+    const active = utcNow >= ov.utcStart && utcNow < ov.utcEnd;
+    html += '<div class="overlap-card' + (active ? ' active' : '') + '">'
+      + '<div class="overlap-name">' + ov.name + (active ? '<span class="overlap-active-badge">ACTIVO AHORA</span>' : '') + '</div>'
+      + '<div class="overlap-time">' + ov.time + '</div>'
+      + '<div class="overlap-desc">' + ov.desc + '</div>'
+      + '</div>';
+  });
+  html += '</div></div>';
+
+  document.getElementById('sess-content').innerHTML = html;
+}
+
+// Update sessions every minute
+renderSessions();
+setInterval(renderSessions, 60000);
+
+// ─────────────────────────────────
+// EARNINGS CALENDAR
+// ─────────────────────────────────
+const EARNINGS = [
+  // ESTA SEMANA
+  {ticker:'NVDA', name:'NVIDIA Corporation', day:'Hoy', time:'After Close', sector:'Tecnologia', mktCap:'2.8T', epsEst:'5.57', epsLast:'4.93', revEst:'24.6B', revLast:'22.1B', importance:'h',
+   desc:'El mas esperado del trimestre. NVIDIA es el lider indiscutible en chips para IA. El mercado espera un crecimiento del 80% en ingresos de data center. Cualquier guia decepcionante puede arrastrar a todo el sector tech.',
+   watch:'Atencion a la guia para el proximo trimestre y los comentarios sobre demanda de chips H100/H200 por parte de hiperescalares (Amazon, Microsoft, Google).',
+   consensus:{buy:42,hold:8,sell:2}, target:'1050$', trend:'alcista', reactions:[{q:'Q4 2024',chg:'+16.4%'},{q:'Q3 2024',chg:'+14.7%'},{q:'Q2 2024',chg:'+9.3%'},{q:'Q1 2024',chg:'+9.0%'}]},
+  {ticker:'CRM', name:'Salesforce Inc.', day:'Hoy', time:'After Close', sector:'Software', mktCap:'285B', epsEst:'2.44', epsLast:'2.11', revEst:'9.17B', revLast:'8.72B', importance:'m',
+   desc:'Lider en CRM empresarial. Los inversores vigilaran la integracion de IA en sus productos y el crecimiento de nuevos contratos. Indicador del gasto corporativo en software.',
+   watch:'Crecimiento del RPO (Remaining Performance Obligation) y comentarios sobre adopcion de Agentforce (su plataforma de IA).',
+   consensus:{buy:32,hold:12,sell:2}, target:'360$', trend:'alcista', reactions:[{q:'Q4 2024',chg:'-8.6%'},{q:'Q3 2024',chg:'+1.1%'},{q:'Q2 2024',chg:'+4.2%'},{q:'Q1 2024',chg:'-1.9%'}]},
+  {ticker:'COST', name:'Costco Wholesale', day:'Manana', time:'After Close', sector:'Consumo', mktCap:'390B', epsEst:'4.11', epsLast:'3.78', revEst:'61.8B', revLast:'57.3B', importance:'m',
+   desc:'El gigante del retail por membresia. Buenos resultados de Costco indican salud del consumidor americano de clase media-alta. Sus renovaciones de membresia son un indicador clave.',
+   watch:'Tasa de renovacion de membresias (suele ser >90%) y trafico en tiendas. Indicador adelantado del consumo americano.',
+   consensus:{buy:28,hold:9,sell:1}, target:'980$', trend:'alcista', reactions:[{q:'Q4 2024',chg:'+4.8%'},{q:'Q3 2024',chg:'+2.3%'},{q:'Q2 2024',chg:'+7.0%'},{q:'Q1 2024',chg:'+1.9%'}]},
+  {ticker:'ORCL', name:'Oracle Corporation', day:'Esta semana', time:'After Close', sector:'Tecnologia', mktCap:'450B', epsEst:'1.65', epsLast:'1.41', revEst:'14.4B', revLast:'13.3B', importance:'m',
+   desc:'Oracle se ha transformado en un proveedor clave de infraestructura cloud para IA. Sus contratos con OpenAI y otros labs de IA han disparado el crecimiento del cloud.',
+   watch:'Crecimiento de OCI (Oracle Cloud Infrastructure) y nuevos contratos de IA. Competencia directa con AWS, Azure y Google Cloud.',
+   consensus:{buy:25,hold:11,sell:3}, target:'185$', trend:'alcista', reactions:[{q:'Q4 2024',chg:'+13.3%'},{q:'Q3 2024',chg:'+10.8%'},{q:'Q2 2024',chg:'+12.0%'},{q:'Q1 2024',chg:'-4.3%'}]},
+  {ticker:'ADBE', name:'Adobe Inc.', day:'Esta semana', time:'After Close', sector:'Software', mktCap:'195B', epsEst:'4.97', epsLast:'4.48', revEst:'5.77B', revLast:'5.31B', importance:'m',
+   desc:'Adobe enfrenta el reto de monetizar la IA generativa en sus productos (Firefly) sin canibalizar sus suscripciones actuales. Los resultados mostraran si la IA es una amenaza o una oportunidad para su modelo de negocio.',
+   watch:'Crecimiento de suscripciones Creative Cloud y adopcion de funciones de IA. Comparativa con herramientas de IA gratuitas como Midjourney.',
+   consensus:{buy:22,hold:14,sell:4}, target:'550$', trend:'neutral', reactions:[{q:'Q4 2024',chg:'-6.9%'},{q:'Q3 2024',chg:'-9.4%'},{q:'Q2 2024',chg:'-14.5%'},{q:'Q1 2024',chg:'-13.7%'}]},
+  // PROXIMAS SEMANAS
+  {ticker:'AAPL', name:'Apple Inc.', day:'Proxima semana', time:'After Close', sector:'Tecnologia', mktCap:'3.2T', epsEst:'1.62', epsLast:'1.53', revEst:'94.3B', revLast:'90.8B', importance:'h',
+   desc:'La empresa mas valiosa del mundo. Sus resultados son el termometro del consumidor global de alta gama. La demanda del iPhone en China sera el dato mas vigilado. Apple Intelligence (su estrategia de IA) empieza a impactar en ventas.',
+   watch:'Ventas de iPhone por region (especialmente China), ingresos de servicios (App Store, iCloud, Apple Pay) y comentarios sobre Apple Intelligence.',
+   consensus:{buy:38,hold:12,sell:4}, target:'240$', trend:'alcista', reactions:[{q:'Q1 2025',chg:'-1.2%'},{q:'Q4 2024',chg:'+0.5%'},{q:'Q3 2024',chg:'+7.3%'},{q:'Q2 2024',chg:'+6.0%'}]},
+  {ticker:'MSFT', name:'Microsoft Corporation', day:'Proxima semana', time:'After Close', sector:'Tecnologia', mktCap:'3.1T', epsEst:'3.11', epsLast:'2.94', revEst:'69.8B', revLast:'65.6B', importance:'h',
+   desc:'Microsoft es el mayor beneficiado de la ola de IA via su inversion en OpenAI y Copilot. Azure (su nube) es el indicador clave: si crece mas del 30% los inversores estaran satisfechos.',
+   watch:'Crecimiento de Azure y contribucion de IA al crecimiento. Adopcion de Microsoft 365 Copilot en empresas. Comentarios sobre inversion en infraestructura de IA.',
+   consensus:{buy:45,hold:8,sell:1}, target:'510$', trend:'alcista', reactions:[{q:'Q3 2025',chg:'+5.5%'},{q:'Q2 2025',chg:'+4.1%'},{q:'Q1 2025',chg:'-3.6%'},{q:'Q4 2024',chg:'+0.6%'}]},
+  {ticker:'AMZN', name:'Amazon.com Inc.', day:'Proxima semana', time:'After Close', sector:'Tecnologia', mktCap:'2.2T', epsEst:'1.37', epsLast:'0.98', revEst:'187B', revLast:'170B', importance:'h',
+   desc:'Amazon genera la mayoria de su beneficio via AWS (cloud). El crecimiento de AWS y los margenes de la division de publicidad son los indicadores principales. Amazon es un microcosmos de la economia americana.',
+   watch:'Crecimiento de AWS, margenes operativos y orientacion para la temporada navideña. Expansion de IA generativa en AWS (Bedrock).',
+   consensus:{buy:51,hold:5,sell:1}, target:'240$', trend:'alcista', reactions:[{q:'Q1 2025',chg:'+3.4%'},{q:'Q4 2024',chg:'+2.9%'},{q:'Q3 2024',chg:'+6.6%'},{q:'Q2 2024',chg:'+8.8%'}]},
+  {ticker:'GOOGL', name:'Alphabet (Google)', day:'Proxima semana', time:'After Close', sector:'Tecnologia', mktCap:'2.0T', epsEst:'2.01', epsLast:'1.89', revEst:'89.1B', revLast:'80.5B', importance:'h',
+   desc:'Google domina la publicidad digital pero enfrenta la amenaza de la busqueda por IA (ChatGPT). Sus resultados mostraran si Google Cloud gana terreno a AWS y Azure y si su publicidad resiste la competencia.',
+   watch:'Ingresos de publicidad en Search y YouTube, crecimiento de Google Cloud y adopcion de Gemini. Impacto de la IA en el modelo de busqueda tradicional.',
+   consensus:{buy:40,hold:11,sell:2}, target:'200$', trend:'alcista', reactions:[{q:'Q1 2025',chg:'+4.0%'},{q:'Q4 2024',chg:'-8.1%'},{q:'Q3 2024',chg:'+5.9%'},{q:'Q2 2024',chg:'+0.6%'}]},
+  {ticker:'META', name:'Meta Platforms', day:'Proxima semana', time:'After Close', sector:'Tecnologia', mktCap:'1.5T', epsEst:'5.25', epsLast:'4.71', revEst:'43.6B', revLast:'36.5B', importance:'h',
+   desc:'Meta ha resucitado gracias a la IA aplicada a publicidad. Sus ingresos publicitarios en Instagram y Facebook son el indicador del mercado publicitario digital global. Tambien invierte fuertemente en IA y metaverso (Reality Labs).',
+   watch:'Crecimiento de ingresos publicitarios, eficiencia del algoritmo de IA en targeting y DAU/MAU de sus plataformas. Perdidas en Reality Labs (metaverso).',
+   consensus:{buy:44,hold:7,sell:1}, target:'680$', trend:'alcista', reactions:[{q:'Q1 2025',chg:'+4.6%'},{q:'Q4 2024',chg:'-1.5%'},{q:'Q3 2024',chg:'+20.3%'},{q:'Q2 2024',chg:'+4.8%'}]},
+  {ticker:'TSLA', name:'Tesla Inc.', day:'Proxima semana', time:'After Close', sector:'Automocion', mktCap:'850B', epsEst:'0.47', epsLast:'0.71', revEst:'25.6B', revLast:'25.7B', importance:'h',
+   desc:'Tesla ya no es solo un fabricante de coches: es una empresa de energia, IA y robotica segun Elon Musk. Sus resultados de vehiculos estan bajo presion por la competencia china (BYD). Los inversores miran mas a Cybercab y Optimus que al negocio de coches.',
+   watch:'Entregas de vehiculos, margenes brutos del segmento automovil (bajo presion), y cualquier novedad sobre Full Self-Driving (FSD), Cybercab y el robot Optimus.',
+   consensus:{buy:14,hold:18,sell:12}, target:'230$', trend:'neutral',
+   reactions:[{q:'Q1 2025',chg:'+4.9%'},{q:'Q4 2024',chg:'-3.5%'},{q:'Q3 2024',chg:'+21.9%'},{q:'Q2 2024',chg:'-12.3%'}]},
+  {ticker:'JPM', name:'JPMorgan Chase', day:'Proxima semana', time:'Before Open', sector:'Banca', mktCap:'750B', epsEst:'4.19', epsLast:'4.44', revEst:'43.8B', revLast:'42.7B', importance:'m',
+   desc:'El mayor banco de EEUU. Sus resultados abren la temporada de earnings bancarios. El margen neto de interes (diferencia entre lo que cobra por prestamos y lo que paga por depositos) es el indicador clave en un entorno de bajadas de tipos.',
+   watch:'Net Interest Income (NII) y perspectivas con bajadas de tipos de la Fed. Provisions for credit losses (provisiones para morosidad) como indicador de salud economica.',
+   consensus:{buy:18,hold:9,sell:3}, target:'240$', trend:'alcista',
+   reactions:[{q:'Q1 2025',chg:'+3.2%'},{q:'Q4 2024',chg:'+1.8%'},{q:'Q3 2024',chg:'+4.4%'},{q:'Q2 2024',chg:'+0.6%'}]},
+];
+
+let earnExpanded = new Set();
+let earnActiveInterval = {};
+
+function getConsensusVerdict(c) {
+  if (!c) return {cls:'verdict-hold', txt:'Sin datos'};
+  const total = c.buy + c.hold + c.sell;
+  const buyPct = c.buy / total;
+  if (buyPct >= 0.6) return {cls:'verdict-buy', txt:'&#9650; Comprar'};
+  if (buyPct <= 0.3) return {cls:'verdict-sell', txt:'&#9660; Vender'};
+  return {cls:'verdict-hold', txt:'&#9644; Neutral'};
+}
+
+function renderEarnings() {
+  const days = [...new Set(EARNINGS.map(e => e.day))];
+  let html = '';
+
+  days.forEach(day => {
+    const items = EARNINGS.filter(e => e.day === day);
+    const isToday = day === 'Hoy';
+
+    html += '<div class="earn-week">'
+      + '<div class="earn-week-title">' + day
+      + (isToday ? ' <span style="font-size:10px;background:var(--gbg);color:var(--grn);padding:2px 8px;border-radius:99px;font-weight:700;margin-left:8px">HOY</span>' : '')
+      + '</div><div class="earn-grid">';
+
+    items.forEach(e => {
+      const isExp = earnExpanded.has(e.ticker);
+      const impCls = e.importance === 'h' ? 'earn-imp-h' : e.importance === 'm' ? 'earn-imp-m' : 'earn-imp-l';
+      const impTxt = e.importance === 'h' ? 'Impacto alto' : e.importance === 'm' ? 'Impacto medio' : 'Impacto bajo';
+      const timeCls = e.time.includes('After') ? 'earn-post' : 'earn-pre';
+      const timeTxt = e.time.includes('After') ? '&#127748; After Close' : '&#127774; Before Open';
+      const sectorColors = {
+        'Tecnologia':'background:var(--bbg);color:var(--blu)',
+        'Software':'background:var(--pbg);color:var(--pur)',
+        'Consumo':'background:var(--gbg);color:var(--grn)',
+        'Automocion':'background:var(--rbg);color:var(--red)',
+        'Banca':'background:var(--abg);color:var(--amb)',
+      };
+      const sectorStyle = sectorColors[e.sector] || 'background:var(--sf3);color:var(--t2)';
+
+      // Consensus
+      let consensusHtml = '';
+      if (e.consensus) {
+        const total = e.consensus.buy + e.consensus.hold + e.consensus.sell;
+        const buyW = Math.round((e.consensus.buy/total)*100);
+        const holdW = Math.round((e.consensus.hold/total)*100);
+        const sellW = 100 - buyW - holdW;
+        const verdict = getConsensusVerdict(e.consensus);
+        consensusHtml =
+          '<div class="earn-consensus">'
+          + '<span class="earn-cons-label">Analistas (' + total + '):</span>'
+          + '<div class="earn-cons-bar">'
+          + '<div class="cons-buy" style="width:' + buyW + '%"></div>'
+          + '<div class="cons-hold" style="width:' + holdW + '%"></div>'
+          + '<div class="cons-sell" style="width:' + sellW + '%"></div>'
+          + '</div>'
+          + '<span class="earn-cons-verdict ' + verdict.cls + '">' + verdict.txt + '</span>'
+          + (e.target ? '<span class="earn-target">Precio objetivo: <strong>' + e.target + '</strong></span>' : '')
+          + '</div>';
+      }
+
+      // Reactions history
+      let reactHtml = '';
+      if (e.reactions && e.reactions.length) {
+        reactHtml = '<div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Reaccion historica al dia siguiente del earnings</div>'
+          + '<div class="earn-reactions">'
+          + e.reactions.map(r => {
+              const up = r.chg.startsWith('+');
+              return '<div class="earn-react-item">'
+                + '<div class="earn-react-q">' + r.q + '</div>'
+                + '<div class="earn-react-chg ' + (up?'earn-react-up':'earn-react-dn') + '">' + r.chg + '</div>'
+                + '</div>';
+            }).join('')
+          + '</div>';
+      }
+
+      // Trend box
+      const trendCls = e.trend === 'alcista' ? 'trend-alcista' : e.trend === 'bajista' ? 'trend-bajista' : 'trend-neutral';
+      const trendTxt = e.trend === 'alcista' ? '&#9650; Tendencia tecnica: ALCISTA — precio por encima de medias clave'
+        : e.trend === 'bajista' ? '&#9660; Tendencia tecnica: BAJISTA — precio por debajo de medias clave'
+        : '&#9644; Tendencia tecnica: NEUTRAL — en consolidacion';
+
+      // Chart section
+      const chartId = 'tv-' + e.ticker;
+      const chartHtml = isExp ? '<div class="earn-chart-section">'
+        + '<div class="earn-chart-header">'
+        + '<span class="earn-chart-title">&#128200; Grafico ' + e.ticker + ' — TradingView</span>'
+        + consensusHtml
+        + '</div>'
+        + '<div class="earn-trend-box ' + trendCls + '">' + trendTxt + '</div>'
+        + (reactHtml ? reactHtml : '')
+        + '<div class="earn-tv-tabs">'
+        + ['1D','1W','1M','3M','1Y'].map(tf =>
+            '<button class="earn-tv-tab' + (tf==='1D'?' on':'') + '" onclick="event.stopPropagation();switchChart(\'' + e.ticker + '\',\'' + tf + '\',this)">' + tf + '</button>'
+          ).join('')
+        + '</div>'
+        + '<div class="earn-tv-wrap" id="' + chartId + '">'
+        + buildTVChart(e.ticker, '1D')
+        + '</div>'
+        + '</div>' : '';
+
+      html += '<div class="earn-card' + (isExp?' expanded':'') + '" onclick="toggleEarn(\'' + e.ticker + '\')">'
+        + '<div class="earn-card-top">'
+        + '<div><div class="earn-ticker">' + e.ticker + '</div><div class="earn-name">' + e.name + '</div></div>'
+        + '<span class="earn-time-badge ' + timeCls + '">' + timeTxt + '</span>'
+        + '</div>'
+        + '<div class="earn-metrics">'
+        + '<div class="earn-metric"><div class="earn-metric-lbl">EPS Est.</div><div class="earn-metric-val">' + (e.epsEst||'—') + '</div></div>'
+        + '<div class="earn-metric"><div class="earn-metric-lbl">EPS Ant.</div><div class="earn-metric-val">' + (e.epsLast||'—') + '</div></div>'
+        + '<div class="earn-metric"><div class="earn-metric-lbl">Rev. Est.</div><div class="earn-metric-val">' + (e.revEst||'—') + '</div></div>'
+        + '<div class="earn-metric"><div class="earn-metric-lbl">Rev. Ant.</div><div class="earn-metric-val">' + (e.revLast||'—') + '</div></div>'
+        + '</div>'
+        + '<div style="display:flex;align-items:center;justify-content:space-between">'
+        + '<span class="earn-sector" style="' + sectorStyle + '">' + e.sector + '</span>'
+        + '<div class="earn-importance"><span class="earn-imp-dot ' + impCls + '"></span>' + impTxt + '</div>'
+        + '</div>'
+        + '<div class="earn-detail">'
+        + '<div class="earn-detail-text">' + e.desc + '</div>'
+        + '<div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;margin-top:8px">&#127919; Que vigilar</div>'
+        + '<div class="earn-detail-text" style="background:var(--sf3);padding:.6rem .8rem;border-radius:6px;border-left:3px solid var(--blu);margin-bottom:0">' + e.watch + '</div>'
+        + chartHtml
+        + '</div>'
+        + '</div>';
+    });
+
+    html += '</div></div>';
+  });
+
+  document.getElementById('earn-content').innerHTML = html;
+}
+
+function buildTVChart(ticker, timeframe) {
+  const tfMap = {'1D':'D','1W':'W','1M':'M','3M':'3M','1Y':'12M'};
+  const tv_tf = tfMap[timeframe] || 'D';
+  return '<iframe src="https://www.tradingview.com/widgetsnext/embed/single-quote/?symbol=' + ticker
+    + '&interval=' + tv_tf
+    + '&theme=dark&style=1&locale=es&toolbar_bg=%23161c24&enable_publishing=false&hide_top_toolbar=false&save_image=false&container_id=tv_' + ticker + '_' + tv_tf + '" '
+    + 'style="width:100%;height:420px;border:none;display:block;border-radius:6px" '
+    + 'allowtransparency="true" scrolling="no" frameborder="0"></iframe>';
+}
+
+function switchChart(ticker, tf, btn) {
+  const wrap = document.getElementById('tv-' + ticker);
+  if (!wrap) return;
+  wrap.innerHTML = buildTVChart(ticker, tf);
+  const tabs = wrap.parentElement.querySelectorAll('.earn-tv-tab');
+  tabs.forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function toggleEarn(ticker) {
+  if (earnExpanded.has(ticker)) earnExpanded.delete(ticker);
+  else earnExpanded.add(ticker);
+  renderEarnings();
+  // Scroll to the expanded card
+  if (earnExpanded.has(ticker)) {
+    setTimeout(() => {
+      const el = document.querySelector('.earn-card.expanded');
+      if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 100);
+  }
+}
+
+renderEarnings();
 </script>
 </body>
 </html>
