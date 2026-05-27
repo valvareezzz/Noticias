@@ -3,462 +3,797 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Market Dashboard</title>
+<title>Trader Dashboard</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0e1117;--sf:#161b26;--sf2:#1e2535;--sf3:#252d3d;
-  --b:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.14);
-  --t:#e8eaf0;--t2:#8b92a5;--t3:#555e72;
-  --red:#f04f4f;--rbg:rgba(240,79,79,0.12);--rdim:rgba(240,79,79,0.28);
-  --amb:#f5a623;--abg:rgba(245,166,35,0.12);--adim:rgba(245,166,35,0.28);
-  --grn:#3ecf8e;--gbg:rgba(62,207,142,0.12);--gdim:rgba(62,207,142,0.28);
-  --blu:#5b9cf6;--bbg:rgba(91,156,246,0.12);
-  --pur:#a78bfa;--pbg:rgba(167,139,250,0.12);
-  --rsm:6px;--r:10px
+  --bg:#0d1117;--sf:#161c24;--sf2:#1c2430;--sf3:#242f3d;
+  --b:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.12);--b3:rgba(255,255,255,0.2);
+  --t:#e6edf3;--t2:#7d8590;--t3:#484f58;
+  --red:#f85149;--rbg:rgba(248,81,73,0.1);--rdim:rgba(248,81,73,0.25);
+  --amb:#d29922;--abg:rgba(210,153,34,0.1);--adim:rgba(210,153,34,0.25);
+  --grn:#3fb950;--gbg:rgba(63,185,80,0.1);--gdim:rgba(63,185,80,0.25);
+  --blu:#58a6ff;--bbg:rgba(88,166,255,0.1);
+  --pur:#bc8cff;--pbg:rgba(188,140,255,0.1);
+  --teal:#39d353;
 }
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--t);min-height:100vh;font-size:14px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--t);min-height:100vh;font-size:14px;line-height:1.5}
 *{scrollbar-width:thin;scrollbar-color:var(--sf3) transparent}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--sf3)}
-.topbar{background:var(--sf);border-bottom:1px solid var(--b);height:52px;display:flex;align-items:center;padding:0 1.25rem;position:sticky;top:0;z-index:200;justify-content:space-between;gap:8px}
-.logo{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;letter-spacing:-.02em;flex-shrink:0}
-.logo-mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#5b9cf6,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff}
-.live-dot{width:6px;height:6px;border-radius:50%;background:var(--grn);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.nav-tabs{display:flex;gap:2px;flex:1}
-.nav-tab{display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:var(--rsm);font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;border:none;background:none;transition:all .15s;white-space:nowrap}
-.nav-tab:hover{color:var(--t);background:var(--sf2)}
-.nav-tab.active{color:var(--t);background:var(--sf2)}
-.nav-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;opacity:0}
-.nav-tab.active .nav-dot{opacity:1}
-.nd-bl{background:var(--blu)}.nd-am{background:var(--amb)}.nd-pu{background:var(--pur)}
-.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.clock{font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums}
-.btn-s{display:flex;align-items:center;gap:5px;font-size:12px;padding:5px 11px;border-radius:var(--rsm);border:1px solid var(--b2);background:var(--sf2);color:var(--t2);cursor:pointer;transition:all .15s}
-.btn-s:hover{background:var(--sf3);color:var(--t)}
-.btn-s:disabled{opacity:.4;cursor:not-allowed}
-.page{display:none;height:calc(100vh - 52px);overflow:hidden}
-.page.active{display:flex}
-.sidebar{width:400px;min-width:280px;border-right:1px solid var(--b);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
-.sb-bar{padding:10px 12px;border-bottom:1px solid var(--b);background:var(--sf);flex-shrink:0;display:flex;flex-direction:column;gap:8px}
-.sbox{display:flex;align-items:center;gap:8px;background:var(--sf2);border:1px solid var(--b);border-radius:var(--rsm);padding:6px 10px;transition:border-color .15s}
-.sbox:focus-within{border-color:var(--blu)}
-.sbox input{background:none;border:none;outline:none;color:var(--t);font-size:13px;flex:1}
-.sbox input::placeholder{color:var(--t3)}
-.frow{display:flex;gap:5px;flex-wrap:wrap}
-.fb{font-size:11px;font-weight:600;padding:4px 12px;border-radius:99px;border:1px solid var(--b2);background:var(--sf2);color:var(--t2);cursor:pointer;transition:all .15s}
-.fb:hover{background:var(--sf3);color:var(--t)}
-.fb.aall{border-color:var(--blu);color:#fff;background:var(--blu)}
-.fb.acritica{border-color:var(--red);color:#fff;background:var(--red)}
-.fb.aimportante{border-color:var(--amb);color:#0e1117;background:var(--amb)}
-.fb.anormal{border-color:var(--grn);color:#0e1117;background:var(--grn)}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--sf3);border-radius:2px}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:var(--sf);border-bottom:1px solid var(--b);
+  height:54px;display:flex;align-items:center;
+  padding:0 1.5rem;position:sticky;top:0;z-index:300;
+  justify-content:space-between;gap:12px;
+}
+.logo{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;flex-shrink:0;letter-spacing:-.01em}
+.logo-icon{width:30px;height:30px;background:linear-gradient(135deg,#58a6ff,#bc8cff);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#0d1117}
+.live{width:7px;height:7px;border-radius:50%;background:var(--grn);animation:pulse 2s infinite;margin-left:2px}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(63,185,80,.4)}50%{opacity:.7;box-shadow:0 0 0 4px rgba(63,185,80,0)}}
+.nav{display:flex;gap:2px;flex:1;justify-content:center}
+.nb{display:flex;align-items:center;gap:7px;padding:7px 16px;border-radius:6px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;border:none;background:none;transition:all .15s;white-space:nowrap}
+.nb:hover{color:var(--t);background:var(--sf2)}
+.nb.on{color:var(--t);background:var(--sf2);box-shadow:inset 0 0 0 1px var(--b2)}
+.nb .dot{width:4px;height:4px;border-radius:50%;opacity:0;transition:opacity .15s}
+.nb.on .dot{opacity:1}
+.dot-b{background:var(--blu)}.dot-a{background:var(--amb)}.dot-p{background:var(--pur)}
+.hright{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.clock{font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums;min-width:68px;text-align:right}
+.btn{display:flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;border-radius:6px;border:1px solid var(--b2);background:var(--sf2);color:var(--t2);cursor:pointer;transition:all .15s;font-weight:500}
+.btn:hover{background:var(--sf3);color:var(--t);border-color:var(--b3)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── PAGES ── */
+.page{display:none;height:calc(100vh - 54px);overflow:hidden}
+.page.on{display:flex}
+
+/* ── NEWS LAYOUT ── */
+.sidebar{width:420px;min-width:300px;border-right:1px solid var(--b);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sb-head{padding:12px;border-bottom:1px solid var(--b);background:var(--sf);flex-shrink:0;display:flex;flex-direction:column;gap:8px}
+.search{display:flex;align-items:center;gap:8px;background:var(--sf2);border:1px solid var(--b2);border-radius:6px;padding:7px 11px;transition:border-color .2s}
+.search:focus-within{border-color:var(--blu)}
+.search input{background:none;border:none;outline:none;color:var(--t);font-size:13px;flex:1;min-width:0}
+.search input::placeholder{color:var(--t3)}
+.filters{display:flex;gap:5px;flex-wrap:wrap}
+.fb{font-size:11px;font-weight:600;padding:4px 12px;border-radius:99px;border:1px solid var(--b2);background:transparent;color:var(--t2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
+.fb:hover{border-color:var(--b3);color:var(--t)}
+.fb.on-all{background:var(--blu);border-color:var(--blu);color:#0d1117}
+.fb.on-c{background:var(--red);border-color:var(--red);color:#fff}
+.fb.on-i{background:var(--amb);border-color:var(--amb);color:#0d1117}
+.fb.on-n{background:var(--grn);border-color:var(--grn);color:#0d1117}
+.fdot{width:6px;height:6px;border-radius:50%}
 .rbar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t3)}
-.rb-p{flex:1;height:2px;background:var(--sf3);border-radius:1px;overflow:hidden}
-.rb-f{height:100%;background:var(--blu);border-radius:1px;transition:width 1s linear}
-.nlist{flex:1;overflow-y:auto;background:var(--bg)}
-.sh{position:sticky;top:0;z-index:10;padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
-.shc{background:rgba(14,17,23,.96);color:var(--red);border-bottom:1px solid rgba(240,79,79,.18)}
-.shi{background:rgba(14,17,23,.96);color:var(--amb);border-bottom:1px solid rgba(245,166,35,.18)}
-.shn{background:rgba(14,17,23,.96);color:var(--grn);border-bottom:1px solid rgba(62,207,142,.18)}
-.sh-c{font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;margin-left:auto}
-.sh-c.r{background:var(--rbg);color:var(--red)}.sh-c.a{background:var(--abg);color:var(--amb)}.sh-c.g{background:var(--gbg);color:var(--grn)}
-.ni{padding:11px 14px;border-bottom:1px solid var(--b);cursor:pointer;transition:background .1s;border-left:3px solid transparent}
-.ni:hover{background:var(--sf)}
-.ni.active{background:var(--sf2)}
-.ni.active.ic{border-left-color:var(--red)}.ni.active.ii{border-left-color:var(--amb)}.ni.active.in{border-left-color:var(--grn)}
-.ni.read{opacity:.55}.ni.read:hover{opacity:.8}.ni.read .ni-tt{color:var(--t2);font-weight:400}
-.ni-top{display:flex;align-items:flex-start;gap:7px;margin-bottom:5px}
-.udot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.udot.c{background:var(--red)}.udot.i{background:var(--amb)}.udot.n{background:var(--grn)}
-.ni.read .udot{opacity:0}
-.ni-bdg{font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:3px;flex-shrink:0;margin-top:2px}
+.rbar-prog{flex:1;height:2px;background:var(--sf3);border-radius:1px;overflow:hidden}
+.rbar-fill{height:100%;background:var(--blu);border-radius:1px;transition:width 1s linear}
+.unread-badge{font-size:11px;color:var(--blu);font-weight:600;white-space:nowrap}
+
+/* ── NEWS LIST ── */
+.nlist{flex:1;overflow-y:auto}
+.sec-head{position:sticky;top:0;z-index:5;padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:8px;backdrop-filter:blur(8px)}
+.sec-head.sc{background:rgba(13,17,23,.92);color:var(--red);border-bottom:1px solid var(--rdim)}
+.sec-head.si{background:rgba(13,17,23,.92);color:var(--amb);border-bottom:1px solid var(--adim)}
+.sec-head.sn{background:rgba(13,17,23,.92);color:var(--grn);border-bottom:1px solid var(--gdim)}
+.sec-cnt{font-size:10px;padding:1px 7px;border-radius:99px;margin-left:auto;font-weight:700}
+.sc .sec-cnt{background:var(--rbg);color:var(--red)}
+.si .sec-cnt{background:var(--abg);color:var(--amb)}
+.sn .sec-cnt{background:var(--gbg);color:var(--grn)}
+
+.nitem{padding:11px 14px;border-bottom:1px solid var(--b);cursor:pointer;transition:background .1s;border-left:3px solid transparent}
+.nitem:hover{background:var(--sf)}
+.nitem.sel{background:var(--sf2)}
+.nitem.sel.tc{border-left-color:var(--red)}
+.nitem.sel.ti{border-left-color:var(--amb)}
+.nitem.sel.tn{border-left-color:var(--grn)}
+.nitem.read{opacity:.45}
+.nitem.read:hover{opacity:.7}
+.nitem.read .ntitle{font-weight:400;color:var(--t2)}
+.ntop{display:flex;align-items:flex-start;gap:7px;margin-bottom:5px}
+.ndot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.ndot.c{background:var(--red)}.ndot.i{background:var(--amb)}.ndot.n{background:var(--grn)}
+.nitem.read .ndot{opacity:0}
+.nbadge{font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:3px;flex-shrink:0;margin-top:2px}
 .bc{background:var(--rdim);color:var(--red)}.bi{background:var(--adim);color:var(--amb)}.bn{background:var(--gdim);color:var(--grn)}
-.ni-tt{font-size:13px;font-weight:600;line-height:1.4;color:var(--t);flex:1}
-.ni-ds{font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.ni-mt{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.ni-tm,.ni-sc{font-size:11px;color:var(--t3)}
-.ni-dt{width:2px;height:2px;border-radius:50%;background:var(--t3);flex-shrink:0}
-.mt{font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px}
-.mt-sp500{background:rgba(91,156,246,.15);color:#7ab3f8}.mt-nasdaq{background:rgba(167,139,250,.15);color:#b39dfd}
-.mt-dj{background:rgba(62,207,142,.15);color:#4dd4a0}.mt-oil{background:rgba(245,166,35,.15);color:#f7c060}
-.mt-bonds{background:rgba(45,212,191,.15);color:#4de0cc}.mt-fx{background:rgba(240,79,79,.15);color:#f47070}
-.mt-crypto{background:rgba(251,191,36,.15);color:#fbbf24}.mt-ibex{background:rgba(96,165,250,.15);color:#70a8fc}
-.mt-global{background:rgba(139,146,165,.15);color:#8b92a5}.mt-eu{background:rgba(99,179,237,.15);color:#76c5ee}
-.dp{flex:1;overflow-y:auto;background:var(--bg);display:flex;flex-direction:column}
-.dp-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--t3);gap:12px;font-size:13px;text-align:center}
-.dp-empty .big{font-size:40px;opacity:.15}
-.dp-cnt{padding:2rem 2.5rem;max-width:780px}
-.dc-top{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
-.dc-bdg{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:4px}
-.dc-bdg.c{background:var(--rbg);color:var(--red);border:1px solid rgba(240,79,79,.3)}
-.dc-bdg.i{background:var(--abg);color:var(--amb);border:1px solid rgba(245,166,35,.3)}
-.dc-bdg.n{background:var(--gbg);color:var(--grn);border:1px solid rgba(62,207,142,.3)}
-.dc-mkts{display:flex;gap:6px;flex-wrap:wrap}
-.dc-tt{font-size:22px;font-weight:800;line-height:1.25;color:var(--t);margin-bottom:.8rem;letter-spacing:-.025em}
-.dc-ds{font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:1.2rem;padding-bottom:1.2rem;border-bottom:1px solid var(--b);font-style:italic}
-.dc-meta{display:flex;align-items:center;gap:16px;margin-bottom:1.4rem;padding-bottom:1rem;border-bottom:1px solid var(--b);flex-wrap:wrap}
-.dc-mi{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t3)}
-.dc-mi strong{color:var(--t2);font-weight:500}
-.dc-body{font-size:14px;line-height:1.8;color:var(--t2)}
-.dc-body p{margin-bottom:1rem}.dc-body p:last-child{margin-bottom:0}
-.dc-ft{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.dc-src{font-size:12px;color:var(--t3)}
-.dc-lnk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--blu);text-decoration:none;padding:6px 14px;border-radius:var(--rsm);border:1px solid rgba(91,156,246,.25);background:var(--bbg)}
-.dc-lnk:hover{background:rgba(91,156,246,.22)}
-.cal-pg{flex:1;overflow-y:auto;padding:1.5rem}
-.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:10px}
-.cal-hdr h2{font-size:16px;font-weight:600}
-.cal-flt{display:flex;gap:6px}
-.cfb{font-size:11px;font-weight:600;padding:4px 12px;border-radius:99px;border:1px solid var(--b2);background:var(--sf2);color:var(--t2);cursor:pointer;transition:all .15s}
-.cfb.active{background:var(--sf3);color:var(--t);border-color:var(--b2)}
-.cfb.hi.active{border-color:var(--red);color:var(--red);background:var(--rbg)}
-.cal-day{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);padding:12px 0 6px;border-bottom:1px solid var(--b);margin-bottom:8px}
-.cal-ev{background:var(--sf);border:1px solid var(--b);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:border-color .15s;cursor:pointer}
-.cal-ev:hover{border-color:var(--b2)}
-.cal-ev.ih{border-left:3px solid var(--red)}.cal-ev.im{border-left:3px solid var(--amb)}.cal-ev.il{border-left:3px solid var(--sf3)}
-.ce-top{padding:.85rem 1.1rem;display:grid;grid-template-columns:80px 32px 1fr auto 24px;align-items:center;gap:12px}
-.ce-tm{font-size:12px;color:var(--t2);font-variant-numeric:tabular-nums;font-weight:500}
-.ce-fl{font-size:18px;text-align:center}
-.ce-nm{font-size:13px;font-weight:600;color:var(--t);margin-bottom:2px}
-.ce-ds{font-size:11px;color:var(--t3)}
-.ce-dots{display:flex;gap:3px;margin-top:5px}
-.ce-d{width:8px;height:8px;border-radius:2px;background:var(--sf3)}
-.ce-d.h{background:var(--red)}.ce-d.m{background:var(--amb)}.ce-d.l{background:var(--grn)}
-.ce-pv{text-align:right}
-.ce-pvl{font-size:10px;color:var(--t3)}
-.ce-pvv{font-size:12px;color:var(--t2);font-variant-numeric:tabular-nums;font-weight:600}
-.ce-chv{font-size:16px;color:var(--t3);transition:transform .2s;text-align:center;user-select:none}
-.cal-ev.open .ce-chv{transform:rotate(180deg)}
-.ce-det{display:none;padding:0 1.1rem 1.1rem;border-top:1px solid var(--b)}
-.cal-ev.open .ce-det{display:block}
-.cd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:1rem 0}
-.cd-box{background:var(--sf2);border-radius:var(--rsm);padding:.75rem 1rem}
-.cd-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);margin-bottom:4px}
-.cd-val{font-size:16px;font-weight:700;color:var(--t)}
-.cd-val.am{color:var(--amb)}
-.cd-slbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);margin-bottom:6px}
-.cd-an{font-size:13px;color:var(--t2);line-height:1.65;margin-bottom:1rem}
-.cd-mkts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem}
-.cd-mkt{font-size:11px;font-weight:600;padding:3px 9px;border-radius:3px;background:var(--sf3);color:var(--t2)}
-.cd-warn{font-size:12px;color:var(--amb);background:var(--abg);border-radius:var(--rsm);padding:.6rem .9rem;margin-top:.5rem}
-.gl-pg{flex:1;overflow-y:auto;padding:1.5rem}
-.gl-hdr{display:flex;align-items:center;gap:8px;margin-bottom:1.2rem}
-.gl-hdr h2{font-size:16px;font-weight:600}
-.gl-cnt{font-size:12px;color:var(--t3)}
-.gl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px}
-.gc{background:var(--sf);border:1px solid var(--b);border-radius:var(--r);padding:1rem 1.1rem;transition:border-color .15s}
-.gc:hover{border-color:var(--b2)}
-.gc-term{font-size:14px;font-weight:700;color:var(--t);margin-bottom:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.gc-cat{font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.04em}
-.cat-f{background:var(--bbg);color:var(--blu)}.cat-a{background:var(--gbg);color:var(--grn)}
-.cat-n{background:var(--pbg);color:var(--pur)}.cat-r{background:var(--rbg);color:var(--red)}
-.cat-m{background:var(--abg);color:var(--amb)}.cat-e{background:rgba(45,212,191,.12);color:#4de0cc}
-.gc-def{font-size:13px;color:var(--t2);line-height:1.6}
-.gc-lvl{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10px;color:var(--t3)}
-.lvd{display:flex;gap:3px}
-.ld{width:6px;height:6px;border-radius:50%;background:var(--sf3)}
+.ntitle{font-size:13px;font-weight:600;line-height:1.4;color:var(--t);flex:1}
+.ndesc{font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nmeta{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ntime,.nsource{font-size:11px;color:var(--t3)}
+.nsep{width:2px;height:2px;border-radius:50%;background:var(--t3);flex-shrink:0}
+.ntag{font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px}
+.tag-sp500{background:rgba(88,166,255,.15);color:#7ab8ff}
+.tag-nasdaq{background:rgba(188,140,255,.15);color:#c9a6ff}
+.tag-dj{background:rgba(63,185,80,.15);color:#5dcc73}
+.tag-oil{background:rgba(210,153,34,.15);color:#e6b84a}
+.tag-bonds{background:rgba(45,212,191,.15);color:#4de0cc}
+.tag-forex{background:rgba(248,81,73,.15);color:#ff8b88}
+.tag-crypto{background:rgba(251,191,36,.15);color:#fcd34d}
+.tag-ibex{background:rgba(88,166,255,.12);color:#6aaeff}
+.tag-eu{background:rgba(99,179,237,.15);color:#76c5ee}
+.tag-global{background:rgba(125,133,144,.15);color:#9ba3ad}
+
+/* ── DETAIL PANEL ── */
+.detail{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.det-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--t3);text-align:center;font-size:13px;padding:2rem}
+.det-empty .eicon{font-size:48px;opacity:.1;line-height:1}
+.det-body{padding:2rem 2.5rem;max-width:800px}
+.det-top{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.det-badge{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 12px;border-radius:4px;border:1px solid}
+.det-badge.c{background:var(--rbg);color:var(--red);border-color:rgba(248,81,73,.3)}
+.det-badge.i{background:var(--abg);color:var(--amb);border-color:rgba(210,153,34,.3)}
+.det-badge.n{background:var(--gbg);color:var(--grn);border-color:rgba(63,185,80,.3)}
+.det-tags{display:flex;gap:6px;flex-wrap:wrap}
+.det-title{font-size:22px;font-weight:700;line-height:1.3;color:var(--t);margin-bottom:.75rem;letter-spacing:-.015em}
+.det-desc{font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--b);font-style:italic}
+.det-meta{display:flex;align-items:center;gap:18px;margin-bottom:1.5rem;padding-bottom:1.1rem;border-bottom:1px solid var(--b);flex-wrap:wrap}
+.det-mi{font-size:12px;color:var(--t3)}
+.det-mi strong{color:var(--t2);font-weight:500}
+.det-content{font-size:14px;line-height:1.8;color:var(--t2)}
+.det-content p{margin-bottom:1rem}
+.det-content p:last-child{margin-bottom:0}
+.det-footer{margin-top:2rem;padding-top:1.25rem;border-top:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.det-src{font-size:12px;color:var(--t3)}
+.det-link{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--blu);text-decoration:none;padding:6px 14px;border-radius:6px;border:1px solid rgba(88,166,255,.25);background:var(--bbg);transition:all .15s}
+.det-link:hover{background:rgba(88,166,255,.2)}
+
+/* ── CALENDAR ── */
+.fullpage{flex:1;overflow-y:auto;padding:1.75rem 2rem;max-width:1000px;margin:0 auto;width:100%}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px}
+.ph h2{font-size:18px;font-weight:700;color:var(--t)}
+.ph-flt{display:flex;gap:6px}
+.cfb{font-size:11px;font-weight:600;padding:5px 13px;border-radius:99px;border:1px solid var(--b2);background:var(--sf2);color:var(--t2);cursor:pointer;transition:all .15s}
+.cfb:hover{color:var(--t);border-color:var(--b3)}
+.cfb.on{background:var(--sf3);color:var(--t);border-color:var(--b3)}
+.cfb.hi.on{border-color:var(--red);color:var(--red);background:var(--rbg)}
+
+.day-label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);padding:1rem 0 .5rem;border-bottom:1px solid var(--b);margin-bottom:.75rem}
+.cev{background:var(--sf);border:1px solid var(--b);border-radius:10px;margin-bottom:8px;overflow:hidden;cursor:pointer;transition:all .15s}
+.cev:hover{border-color:var(--b2);background:var(--sf2)}
+.cev.ih{border-left:3px solid var(--red)}
+.cev.im{border-left:3px solid var(--amb)}
+.cev.il{border-left:3px solid var(--grn)}
+.cev-row{padding:.85rem 1.1rem;display:grid;grid-template-columns:72px 34px 1fr auto 22px;align-items:center;gap:12px}
+.ctime{font-size:12px;color:var(--t2);font-weight:600;font-variant-numeric:tabular-nums}
+.cflag{font-size:18px;text-align:center}
+.ctitle{font-size:13px;font-weight:600;color:var(--t);margin-bottom:2px}
+.csubt{font-size:11px;color:var(--t3)}
+.cdots{display:flex;gap:3px;margin-top:5px}
+.cdot{width:8px;height:8px;border-radius:2px;background:var(--sf3)}
+.cdot.h{background:var(--red)}.cdot.m{background:var(--amb)}.cdot.l{background:var(--grn)}
+.cprev{text-align:right}
+.cprevl{font-size:10px;color:var(--t3)}
+.cprevv{font-size:12px;color:var(--t2);font-weight:600;font-variant-numeric:tabular-nums}
+.cchev{font-size:15px;color:var(--t3);transition:transform .2s;user-select:none;text-align:center}
+.cev.open .cchev{transform:rotate(180deg)}
+.cdet{display:none;padding:0 1.1rem 1.1rem;border-top:1px solid var(--b)}
+.cev.open .cdet{display:block}
+.cdet-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:1rem 0}
+.cdet-box{background:var(--sf2);border-radius:6px;padding:.75rem 1rem}
+.cdet-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);margin-bottom:4px}
+.cdet-val{font-size:15px;font-weight:700;color:var(--t)}
+.cdet-val.am{color:var(--amb)}
+.cdet-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);margin:.9rem 0 .4rem}
+.cdet-an{font-size:13px;color:var(--t2);line-height:1.65;margin-bottom:.75rem}
+.cdet-mkts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.6rem}
+.cdet-mkt{font-size:11px;font-weight:500;padding:3px 9px;border-radius:3px;background:var(--sf3);color:var(--t2);border:1px solid var(--b)}
+.cdet-warn{font-size:12px;color:var(--amb);background:var(--abg);border-radius:6px;padding:.6rem .9rem;display:flex;gap:7px;line-height:1.55}
+
+/* ── GLOSSARY ── */
+.gl-top{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap}
+.gl-top h2{font-size:18px;font-weight:700;color:var(--t)}
+.gl-count{font-size:12px;color:var(--t3);font-weight:400}
+.gl-search{display:flex;align-items:center;gap:8px;background:var(--sf2);border:1px solid var(--b2);border-radius:8px;padding:8px 12px;max-width:400px;transition:border-color .2s}
+.gl-search:focus-within{border-color:var(--blu)}
+.gl-search input{background:none;border:none;outline:none;color:var(--t);font-size:13px;flex:1}
+.gl-search input::placeholder{color:var(--t3)}
+.gl-cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem}
+.gcat-btn{font-size:11px;font-weight:600;padding:4px 12px;border-radius:99px;border:1px solid var(--b2);background:transparent;color:var(--t2);cursor:pointer;transition:all .15s}
+.gcat-btn:hover{color:var(--t);border-color:var(--b3)}
+.gcat-btn.on{color:var(--t);background:var(--sf3);border-color:var(--b3)}
+.gl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.gcard{background:var(--sf);border:1px solid var(--b);border-radius:10px;padding:1rem 1.1rem;cursor:pointer;transition:all .15s}
+.gcard:hover{border-color:var(--b2);background:var(--sf2)}
+.gcard.expanded{border-color:var(--b2);background:var(--sf2)}
+.gcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.gterm{font-size:14px;font-weight:700;color:var(--t)}
+.gcat-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:3px;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;margin-top:2px}
+.gc-f{background:var(--bbg);color:var(--blu)}
+.gc-a{background:var(--gbg);color:var(--grn)}
+.gc-n{background:var(--pbg);color:var(--pur)}
+.gc-r{background:var(--rbg);color:var(--red)}
+.gc-m{background:var(--abg);color:var(--amb)}
+.gc-e{background:rgba(45,212,191,.1);color:#4de0cc}
+.gc-p{background:rgba(248,81,73,.08);color:#ff8b88}
+.gdef{font-size:13px;color:var(--t2);line-height:1.6}
+.gextra{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--b)}
+.gcard.expanded .gextra{display:block}
+.gextra-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);margin-bottom:5px}
+.gexample{font-size:13px;color:var(--t2);line-height:1.65;background:var(--sf3);border-radius:6px;padding:.6rem .85rem;border-left:3px solid var(--blu)}
+.gformula{font-size:13px;color:var(--amb);font-family:monospace;background:var(--sf3);border-radius:6px;padding:.5rem .85rem;margin-bottom:.5rem}
+.glvl{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10px;color:var(--t3)}
+.glvl-dots{display:flex;gap:3px}
+.ld{width:5px;height:5px;border-radius:50%;background:var(--sf3)}
 .ld.on{background:var(--blu)}
-.state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;gap:14px;color:var(--t2);font-size:13px;text-align:center;flex:1}
-.sp{width:20px;height:20px;border:2px solid var(--sf3);border-top-color:var(--blu);border-radius:50%;animation:spin .7s linear infinite}
+.gchev{font-size:11px;color:var(--t3);margin-left:auto;transition:transform .15s}
+.gcard.expanded .gchev{transform:rotate(180deg)}
+
+/* ── STATES ── */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;gap:14px;color:var(--t2);font-size:13px;text-align:center;flex:1}
+.spinner{width:20px;height:20px;border:2px solid var(--sf3);border-top-color:var(--blu);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-.spinning{animation:spin .7s linear infinite}
-@media(max-width:700px){.sidebar{width:100%;border-right:none}.dp{display:none}.dp.show{display:flex;position:fixed;inset:0;z-index:300;overflow-y:auto;background:var(--bg)}}
+.spin{animation:spin .7s linear infinite}
+
+@media(max-width:750px){
+  .sidebar{width:100%;border-right:none}
+  .detail{display:none}
+  .detail.show{display:flex;position:fixed;inset:0;z-index:200;overflow-y:auto;background:var(--bg)}
+  .back-btn{display:flex!important}
+  .nav .nb span.nl{display:none}
+}
+.back-btn{display:none;align-items:center;gap:8px;padding:12px 16px;cursor:pointer;color:var(--blu);font-size:13px;border-bottom:1px solid var(--b);background:var(--sf);flex-shrink:0;font-weight:500}
 </style>
 </head>
 <body>
- 
+
 <div class="topbar">
-  <div class="logo"><div class="logo-mark">&#9650;</div>Market Dashboard<div class="live-dot"></div></div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="goPage('news',this)"><span class="nav-dot nd-bl"></span>Noticias</button>
-    <button class="nav-tab" onclick="goPage('cal',this)"><span class="nav-dot nd-am"></span>Calendario</button>
-    <button class="nav-tab" onclick="goPage('gl',this)"><span class="nav-dot nd-pu"></span>Glosario</button>
+  <div class="logo">
+    <div class="logo-icon">T</div>
+    Trader Dashboard
+    <div class="live"></div>
   </div>
-  <div class="topbar-right">
-    <span class="clock" id="clock"></span>
-    <button class="btn-s" id="ref-btn" onclick="loadNews()"><span id="ref-icon">&#8635;</span> Actualizar</button>
+  <nav class="nav">
+    <button class="nb on" onclick="showPage('news',this)">
+      <span class="dot dot-b"></span><span class="nl">Noticias</span>
+    </button>
+    <button class="nb" onclick="showPage('cal',this)">
+      <span class="dot dot-a"></span><span class="nl">Calendario</span>
+    </button>
+    <button class="nb" onclick="showPage('gl',this)">
+      <span class="dot dot-p"></span><span class="nl">Glosario</span>
+    </button>
+  </nav>
+  <div class="hright">
+    <span class="clock" id="clk"></span>
+    <button class="btn" id="refbtn" onclick="loadNews()">
+      <span id="reficon">&#8635;</span> Actualizar
+    </button>
   </div>
 </div>
- 
-<div class="page active" id="page-news">
+
+<!-- ═══ NOTICIAS ═══ -->
+<div class="page on" id="pg-news">
   <div class="sidebar">
-    <div class="sb-bar">
-      <div class="sbox"><span style="color:var(--t3)">&#9906;</span><input id="sq" type="text" placeholder="Buscar noticia, fuente, mercado..." oninput="applyF()"/></div>
-      <div class="frow">
-        <button class="fb aall" onclick="setF(this,'all')">Todas</button>
-        <button class="fb" onclick="setF(this,'c')"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#f04f4f;margin-right:4px;vertical-align:middle"></span>Critica</button>
-        <button class="fb" onclick="setF(this,'i')"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#f5a623;margin-right:4px;vertical-align:middle"></span>Importante</button>
-        <button class="fb" onclick="setF(this,'n')"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#3ecf8e;margin-right:4px;vertical-align:middle"></span>Comun</button>
+    <div class="sb-head">
+      <div class="search">
+        <span style="color:var(--t3);font-size:13px">&#128269;</span>
+        <input id="sq" placeholder="Buscar noticia, fuente, mercado..." oninput="applyFilter()">
       </div>
-      <div class="rbar"><span>&#8635;</span><span id="nxt-ref">Actualizando en 5:00</span><div class="rb-p"><div class="rb-f" id="rb-f" style="width:100%"></div></div><span id="unread-lbl" style="color:var(--blu);font-weight:600;font-size:11px"></span></div>
-    </div>
-    <div class="nlist" id="nlist"><div class="state"><div class="sp"></div>Cargando noticias...</div></div>
-  </div>
-  <div class="dp" id="dp">
-    <div class="dp-empty" id="dp-empty"><div class="big">&#9650;</div><span>Selecciona una noticia<br>para leer el contenido completo</span></div>
-    <div class="dp-cnt" id="dp-cnt" style="display:none"></div>
-  </div>
-</div>
- 
-<div class="page" id="page-cal">
-  <div class="cal-pg">
-    <div class="cal-hdr"><h2>Calendario Economico</h2>
-      <div class="cal-flt">
-        <button class="cfb active" onclick="calFn('all',this)">Todos</button>
-        <button class="cfb hi" onclick="calFn('h',this)">Alto impacto</button>
-        <button class="cfb" onclick="calFn('m',this)">Medio</button>
+      <div class="filters">
+        <button class="fb on-all" onclick="setFilter(this,'all')">Todas</button>
+        <button class="fb" onclick="setFilter(this,'c')">
+          <span class="fdot" style="background:var(--red)"></span>Critica
+        </button>
+        <button class="fb" onclick="setFilter(this,'i')">
+          <span class="fdot" style="background:var(--amb)"></span>Importante
+        </button>
+        <button class="fb" onclick="setFilter(this,'n')">
+          <span class="fdot" style="background:var(--grn)"></span>Comun
+        </button>
+      </div>
+      <div class="rbar">
+        <span style="font-size:12px">&#8635;</span>
+        <span id="countdown">Actualizando en 5:00</span>
+        <div class="rbar-prog"><div class="rbar-fill" id="rbar-fill" style="width:100%"></div></div>
+        <span class="unread-badge" id="unread"></span>
       </div>
     </div>
-    <div id="cal-cnt"></div>
+    <div class="nlist" id="nlist">
+      <div class="empty-state"><div class="spinner"></div>Cargando noticias...</div>
+    </div>
+  </div>
+  <div class="detail" id="detail">
+    <div class="back-btn" onclick="closeDetail()">&#8592; Volver</div>
+    <div class="det-empty" id="det-empty">
+      <div class="eicon">&#128240;</div>
+      <span>Selecciona una noticia<br>para leer el contenido completo</span>
+    </div>
+    <div class="det-body" id="det-body" style="display:none"></div>
   </div>
 </div>
- 
-<div class="page" id="page-gl">
-  <div class="gl-pg">
-    <div class="gl-hdr"><h2>Glosario del Trader</h2><span class="gl-cnt" id="gl-cnt"></span></div>
+
+<!-- ═══ CALENDARIO ═══ -->
+<div class="page" id="pg-cal">
+  <div class="fullpage">
+    <div class="ph">
+      <h2>Calendario Economico</h2>
+      <div class="ph-flt">
+        <button class="cfb on" onclick="calFilter('all',this)">Todos</button>
+        <button class="cfb hi" onclick="calFilter('h',this)">&#128308; Alto impacto</button>
+        <button class="cfb" onclick="calFilter('m',this)">&#128993; Medio</button>
+      </div>
+    </div>
+    <div id="cal-content"></div>
+  </div>
+</div>
+
+<!-- ═══ GLOSARIO ═══ -->
+<div class="page" id="pg-gl">
+  <div class="fullpage">
+    <div class="gl-top">
+      <h2>Glosario del Trader</h2>
+      <span class="gl-count" id="gl-count"></span>
+    </div>
+    <div class="gl-search">
+      <span style="color:var(--t3)">&#128269;</span>
+      <input id="gsq" placeholder="Buscar termino..." oninput="filterGloss()">
+    </div>
+    <div class="gl-cats" id="gl-cats"></div>
     <div class="gl-grid" id="gl-grid"></div>
   </div>
 </div>
- 
+
 <script>
-function goPage(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');btn.classList.add('active');}
-function tickClock(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
-setInterval(tickClock,1000);tickClock();
- 
-const readSet=new Set(JSON.parse(localStorage.getItem('rn')||'[]'));
-function saveR(){try{localStorage.setItem('rn',JSON.stringify([...readSet]));}catch(e){}}
-function nk(n){return n.title.slice(0,60).toLowerCase().replace(/\s/g,'');}
-const ML={'mt-sp500':'S&P 500','mt-nasdaq':'NASDAQ','mt-dj':'Dow Jones','mt-oil':'Petroleo','mt-bonds':'Bonos','mt-fx':'Forex','mt-crypto':'Crypto','mt-ibex':'IBEX 35','mt-global':'Global','mt-eu':'Europa'};
-const CKW=['recession','recesion','crash','crisis','collapse','war','guerra','sanction','default','quiebra','federal reserve','reserva federal','bank failure','market crash','trump tariff','aranceles','systemic risk','debt ceiling','bailout','powell','geopolitical','iran','conflicto'];
-const IKW=['gdp','pib','inflation','inflacion','unemployment','desempleo','interest rate','trade','tariff','arancel','earnings','beneficios','oil','petroleo','dollar','dolar','euro','yen','nasdaq','dow jones','s&p','ibex','opec','imf','deficit','deuda','crypto','bitcoin','semiconductor','apple','nvidia','microsoft','amazon','tesla','bce','ecb'];
-const MR=[{tags:['mt-sp500','mt-nasdaq','mt-dj'],kw:['wall street','us stock','stock market']},{tags:['mt-sp500'],kw:['s&p 500','federal reserve','fed ','treasury','us economy','powell']},{tags:['mt-nasdaq'],kw:['nasdaq','apple','nvidia','microsoft','amazon','google','tesla','semiconductor','artificial intelligence']},{tags:['mt-dj'],kw:['dow jones']},{tags:['mt-oil'],kw:['oil','petroleo','crude','brent','wti','opec']},{tags:['mt-bonds'],kw:['bond','treasury','yield','rendimiento','interest rate']},{tags:['mt-fx'],kw:['dolar','dollar','euro','yen','forex','currency','divisa']},{tags:['mt-crypto'],kw:['bitcoin','crypto','ethereum','blockchain']},{tags:['mt-ibex'],kw:['ibex','espana','santander','bbva','telefonica','inditex']},{tags:['mt-eu'],kw:['europa','european','eurozona','ecb','bce','alemania','dax','ftse','lagarde']},{tags:['mt-global'],kw:['global','mundial','world','internacional','g7','g20','imf','war','guerra']}];
-function classify(t){t=t.toLowerCase();for(const k of CKW)if(t.includes(k))return'c';for(const k of IKW)if(t.includes(k))return'i';return'n';}
-function dmkts(t){t=t.toLowerCase();const f=new Set();for(const r of MR)if(r.kw.some(k=>t.includes(k)))r.tags.forEach(x=>f.add(x));if(!f.size)f.add('mt-global');return[...f].slice(0,4);}
-function fdt(){const d=new Date();return{date:d.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}),time:d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})};}
- 
-let allNews=[],activeF='all',activeIdx=null;
-const ASEC=300;let cd=ASEC,cdInt=null;
-function startCD(){clearInterval(cdInt);cd=ASEC;cdInt=setInterval(()=>{cd--;const m=Math.floor(cd/60),s=String(cd%60).padStart(2,'0');const el=document.getElementById('nxt-ref');if(el)el.textContent='Actualizando en '+m+':'+s;const f=document.getElementById('rb-f');if(f)f.style.width=((cd/ASEC)*100)+'%';if(cd<=0)loadNews();},1000);}
-function updU(){const u=allNews.filter(n=>!readSet.has(nk(n))).length;const el=document.getElementById('unread-lbl');if(el)el.textContent=u>0?u+' sin leer':'';}
- 
-const RSS=[
-  {url:'https://feeds.reuters.com/reuters/businessNews',name:'Reuters Business'},
-  {url:'https://feeds.reuters.com/reuters/topNews',name:'Reuters Top News'},
-  {url:'https://feeds.reuters.com/reuters/technologyNews',name:'Reuters Tech'},
-  {url:'https://www.cnbc.com/id/10000664/device/rss/rss.html',name:'CNBC Markets'},
-  {url:'https://www.cnbc.com/id/10001147/device/rss/rss.html',name:'CNBC World'},
-  {url:'https://feeds.bbci.co.uk/news/business/rss.xml',name:'BBC Business'},
-  {url:'https://feeds.bbci.co.uk/news/world/rss.xml',name:'BBC World'},
-  {url:'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml',name:'NY Times'},
-  {url:'https://feeds.marketwatch.com/marketwatch/topstories/',name:'MarketWatch'},
-  {url:'https://finance.yahoo.com/news/rssindex',name:'Yahoo Finance'},
-  {url:'https://www.expansion.com/rss/mercados.xml',name:'Expansion'},
-  {url:'https://www.expansion.com/rss/economia.xml',name:'Expansion Eco.'},
-  {url:'https://www.eleconomista.es/rss/rss-seleccion-ee.php',name:'El Economista'},
-  {url:'https://cincodias.elpais.com/seccion/mercados/rss/',name:'Cinco Dias'},
-  {url:'https://www.bolsamania.com/noticias/rss',name:'Bolsamania'},
-  {url:'https://cointelegraph.com/rss',name:'CoinTelegraph'},
-  {url:'https://coindesk.com/arc/outboundfeeds/rss/',name:'CoinDesk'},
+// ─────────────────────────────────
+// NAVIGATION & CLOCK
+// ─────────────────────────────────
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
+  document.getElementById('pg-' + id).classList.add('on');
+  btn.classList.add('on');
+}
+setInterval(() => {
+  document.getElementById('clk').textContent =
+    new Date().toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}, 1000);
+
+// ─────────────────────────────────
+// NEWS
+// ─────────────────────────────────
+const SOURCES = [
+  {url:'https://feeds.reuters.com/reuters/businessNews', name:'Reuters Business'},
+  {url:'https://feeds.reuters.com/reuters/topNews', name:'Reuters'},
+  {url:'https://feeds.reuters.com/reuters/technologyNews', name:'Reuters Tech'},
+  {url:'https://www.cnbc.com/id/10000664/device/rss/rss.html', name:'CNBC Markets'},
+  {url:'https://www.cnbc.com/id/10001147/device/rss/rss.html', name:'CNBC World'},
+  {url:'https://feeds.bbci.co.uk/news/business/rss.xml', name:'BBC Business'},
+  {url:'https://feeds.bbci.co.uk/news/world/rss.xml', name:'BBC World'},
+  {url:'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml', name:'NY Times'},
+  {url:'https://feeds.marketwatch.com/marketwatch/topstories/', name:'MarketWatch'},
+  {url:'https://finance.yahoo.com/news/rssindex', name:'Yahoo Finance'},
+  {url:'https://www.investing.com/rss/news.rss', name:'Investing.com'},
+  {url:'https://www.expansion.com/rss/mercados.xml', name:'Expansion'},
+  {url:'https://www.eleconomista.es/rss/rss-seleccion-ee.php', name:'El Economista'},
+  {url:'https://cincodias.elpais.com/seccion/mercados/rss/', name:'Cinco Dias'},
+  {url:'https://www.bolsamania.com/noticias/rss', name:'Bolsamania'},
+  {url:'https://cointelegraph.com/rss', name:'CoinTelegraph'},
+  {url:'https://coindesk.com/arc/outboundfeeds/rss/', name:'CoinDesk'},
 ];
-async function loadNews(){
-  const btn=document.getElementById('ref-btn'),icon=document.getElementById('ref-icon');
-  btn.disabled=true;icon.classList.add('spinning');
-  document.getElementById('dp-empty').style.display='flex';
-  document.getElementById('dp-cnt').style.display='none';
-  activeIdx=null;
-  allNews=[];
-  document.getElementById('nlist').innerHTML='<div class="state"><div class="sp"></div>Cargando noticias de '+RSS.length+' fuentes...</div>';
- 
-  const seen=new Set();
-  let total=0;
- 
-  async function fetchOne(src){
-    try{
-      const url='https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(src.url)+'&api_key=public&count=15';
-      const r=await fetch(url,{signal:AbortSignal.timeout(8000)});
-      if(!r.ok)return[];
-      const d=await r.json();
-      if(d.status!=='ok'||!d.items?.length)return[];
-      return d.items.filter(it=>it.title&&it.title.length>10).map(item=>{
-        const txt=(item.title||'')+' '+(item.description||'');
-        const raw=(item.description||'').replace(/<[^>]+>/g,' ').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').replace(/\s{2,}/g,' ').trim();
-        const paras=raw.split(/(?<=[.!?])\s+/);
-        const ps=[];let cur='';
-        for(const s of paras){cur+=s+' ';if(cur.length>250){ps.push(cur.trim());cur='';}}
-        if(cur.trim())ps.push(cur.trim());
-        const body=ps.length?ps.map(p=>'<p>'+p+'</p>').join(''):'<p>Haz clic en "Ver noticia completa" para leer el articulo.</p>';
-        const d2=new Date(item.pubDate||'');
-        const dt={
-          date:isNaN(d2)?'—':d2.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}),
-          time:isNaN(d2)?'—':d2.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})
-        };
-        return{title:item.title.trim(),desc:raw.slice(0,180),body,source:src.name,link:item.link||'#',dt,imp:classify(txt),mkts:dmkts(txt)};
-      });
-    }catch(e){return[];}
-  }
- 
-  // Cargar en lotes de 4, mostrar progresivamente
-  for(let i=0;i<RSS.length;i+=4){
-    const batch=RSS.slice(i,i+4);
-    const results=await Promise.allSettled(batch.map(s=>fetchOne(s)));
-    results.forEach(r=>{
-      if(r.status!=='fulfilled')return;
-      r.value.forEach(n=>{
-        const k=n.title.slice(0,50).toLowerCase().replace(/\s/g,'');
-        if(seen.has(k))return;
-        seen.add(k);
-        allNews.push(n);
-        total++;
+
+const CRITICAL_KW = ['recession','recesion','crash','crisis','collapse','war','guerra','sanction','default','quiebra','bankruptcy','federal reserve','reserva federal','bank failure','market crash','trump tariff','aranceles','systemic risk','debt ceiling','bailout','powell','geopolit','iran','conflicto','invasion','nuclear','emergency','emergencia'];
+const IMPORTANT_KW = ['gdp','pib','inflation','inflacion','unemployment','desempleo','interest rate','trade war','tariff','arancel','earnings','beneficios','crude oil','petroleo','dollar index','dolar','nasdaq','dow jones','s&p 500','ibex','opec','imf','fmi','g7','g20','deficit','deuda','merger','acquisition','ipo','bitcoin','ethereum','semiconductor','apple','nvidia','microsoft','amazon','tesla','bce','ecb','fed ','fomc','lagarde'];
+const MARKET_MAP = [
+  {tag:'tag-sp500', label:'S&P 500', kw:['s&p','federal reserve','fed ','us economy','wall street','us stock','powell','treasury']},
+  {tag:'tag-nasdaq', label:'NASDAQ', kw:['nasdaq','apple','nvidia','microsoft','amazon','google','tesla','chip','semiconductor','ai ','artificial intelligence','tech stock']},
+  {tag:'tag-dj', label:'Dow Jones', kw:['dow jones','djia','dow ']},
+  {tag:'tag-oil', label:'Petroleo', kw:['oil','crude','brent','wti','opec','energia','energy','barrel','barril']},
+  {tag:'tag-bonds', label:'Bonos', kw:['bond','treasury','yield','rendimiento','interest rate','tipos de interes','debt']},
+  {tag:'tag-forex', label:'Forex', kw:['dollar','dolar','euro','yen','pound','libra','forex','currency','divisa','exchange rate','usd','eur','gbp']},
+  {tag:'tag-crypto', label:'Crypto', kw:['bitcoin','btc','crypto','ethereum','eth','blockchain','defi','stablecoin','criptomoneda']},
+  {tag:'tag-ibex', label:'IBEX 35', kw:['ibex','espana','spain','madrid','santander','bbva','telefonica','inditex','repsol']},
+  {tag:'tag-eu', label:'Europa', kw:['europa','european','eurozone','eurozona','ecb','bce','dax','cac','ftse','alemania','germany','france','lagarde']},
+  {tag:'tag-global', label:'Global', kw:['global','mundial','world','international','g7','g20','imf','fmi','world bank','china','emerging market','geopolit']},
+];
+
+function classifyNews(text) {
+  const t = text.toLowerCase();
+  for (const kw of CRITICAL_KW) if (t.includes(kw)) return 'c';
+  for (const kw of IMPORTANT_KW) if (t.includes(kw)) return 'i';
+  return 'n';
+}
+function getMarkets(text) {
+  const t = text.toLowerCase();
+  const found = new Set();
+  for (const m of MARKET_MAP) if (m.kw.some(k => t.includes(k))) found.add(m.tag);
+  if (!found.size) found.add('tag-global');
+  return [...found].slice(0, 4);
+}
+function cleanText(s) {
+  return (s || '').replace(/<[^>]+>/g, ' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ').replace(/&#\d+;/g,' ').replace(/\s{2,}/g,' ').trim();
+}
+function formatDate(ds) {
+  if (!ds) return {date:'—',time:'—',ago:'—'};
+  const d = new Date(ds);
+  if (isNaN(d)) return {date:'—',time:'—',ago:'—'};
+  const diff = Math.floor((Date.now() - d) / 60000);
+  let ago = diff < 1 ? 'ahora mismo' : diff < 60 ? 'hace ' + diff + 'min' : diff < 1440 ? 'hace ' + Math.floor(diff/60) + 'h' : 'hace ' + Math.floor(diff/1440) + 'd';
+  return {
+    date: d.toLocaleDateString('es-ES', {day:'2-digit',month:'short',year:'numeric'}),
+    time: d.toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'}),
+    ago
+  };
+}
+function buildArticle(rawDesc) {
+  const text = cleanText(rawDesc || '');
+  if (!text || text.length < 30) return '<p>Haz clic en "Ver noticia completa" para leer el articulo en la fuente original.</p>';
+  const sentences = text.split(/(?<=[.!?])\s+/);
+  const paras = []; let cur = '';
+  for (const s of sentences) { cur += s + ' '; if (cur.length > 280) { paras.push(cur.trim()); cur = ''; } }
+  if (cur.trim()) paras.push(cur.trim());
+  return paras.map(p => '<p>' + p + '</p>').join('');
+}
+
+const MARKET_LABELS = Object.fromEntries(MARKET_MAP.map(m => [m.tag, m.label]));
+const readItems = new Set(JSON.parse(localStorage.getItem('rd') || '[]'));
+function saveRead() { try { localStorage.setItem('rd', JSON.stringify([...readItems])); } catch(e) {} }
+function itemKey(n) { return n.title.slice(0, 60).toLowerCase().replace(/\s/g, ''); }
+
+let allNews = [], activeFilter = 'all', activeIdx = null;
+const AUTO_SEC = 300; let countdown = AUTO_SEC; let timerInt = null;
+
+function startTimer() {
+  clearInterval(timerInt); countdown = AUTO_SEC;
+  timerInt = setInterval(() => {
+    countdown--;
+    const m = Math.floor(countdown / 60), s = String(countdown % 60).padStart(2, '0');
+    const el = document.getElementById('countdown');
+    if (el) el.textContent = 'Actualizando en ' + m + ':' + s;
+    const fill = document.getElementById('rbar-fill');
+    if (fill) fill.style.width = ((countdown / AUTO_SEC) * 100) + '%';
+    if (countdown <= 0) loadNews();
+  }, 1000);
+}
+function updateUnreadCount() {
+  const u = allNews.filter(n => !readItems.has(itemKey(n))).length;
+  const el = document.getElementById('unread');
+  if (el) el.textContent = u > 0 ? u + ' sin leer' : '';
+}
+
+async function fetchSource(src) {
+  const proxy = 'https://corsproxy.io/?' + encodeURIComponent(src.url);
+  try {
+    const r = await fetch(proxy, { signal: AbortSignal.timeout(9000) });
+    if (!r.ok) return [];
+    const txt = await r.text();
+    const xml = new DOMParser().parseFromString(txt, 'text/xml');
+    const items = [...xml.querySelectorAll('item')];
+    return items.slice(0, 15).map(item => {
+      const title = cleanText(item.querySelector('title')?.textContent || '');
+      if (!title || title.length < 10) return null;
+      const desc = item.querySelector('description')?.textContent || '';
+      const link = item.querySelector('link')?.textContent || item.querySelector('guid')?.textContent || '#';
+      const pubDate = item.querySelector('pubDate')?.textContent || '';
+      const combined = title + ' ' + cleanText(desc);
+      return { title, desc: cleanText(desc).slice(0, 200), article: buildArticle(desc), source: src.name, link, dt: formatDate(pubDate), imp: classifyNews(combined), markets: getMarkets(combined) };
+    }).filter(Boolean);
+  } catch(e) { return []; }
+}
+
+async function loadNews() {
+  const btn = document.getElementById('refbtn');
+  const icon = document.getElementById('reficon');
+  btn.disabled = true; icon.classList.add('spin');
+  document.getElementById('det-empty').style.display = 'flex';
+  document.getElementById('det-body').style.display = 'none';
+  activeIdx = null; allNews = [];
+  const seen = new Set(); let total = 0;
+  document.getElementById('nlist').innerHTML = '<div class="empty-state"><div class="spinner"></div>Conectando con ' + SOURCES.length + ' fuentes...</div>';
+
+  for (let i = 0; i < SOURCES.length; i += 4) {
+    const batch = SOURCES.slice(i, i + 4);
+    const results = await Promise.allSettled(batch.map(s => fetchSource(s)));
+    results.forEach(r => {
+      if (r.status !== 'fulfilled') return;
+      r.value.forEach(n => {
+        const k = n.title.slice(0, 50).toLowerCase().replace(/\s/g, '');
+        if (seen.has(k)) return;
+        seen.add(k); allNews.push(n); total++;
       });
     });
-    if(total>0){
-      allNews.sort((a,b)=>({'c':0,'i':1,'n':2}[a.imp]-{'c':0,'i':1,'n':2}[b.imp]));
-      updU();renderList(allNews);
+    if (total > 0) {
+      allNews.sort((a, b) => ({c:0,i:1,n:2}[a.imp] - {c:0,i:1,n:2}[b.imp]));
+      updateUnreadCount(); renderNewsList(allNews);
     } else {
-      document.getElementById('nlist').innerHTML='<div class="state"><div class="sp"></div>Cargando... ('+Math.min(i+4,RSS.length)+'/'+RSS.length+' fuentes)</div>';
+      document.getElementById('nlist').innerHTML = '<div class="empty-state"><div class="spinner"></div>Cargando... (' + Math.min(i+4, SOURCES.length) + '/' + SOURCES.length + ')</div>';
     }
   }
- 
-  if(total===0){
-    document.getElementById('nlist').innerHTML='<div class="state" style="color:var(--t3)">No se pudieron cargar noticias.<br>Comprueba tu conexion a internet.</div>';
-  }
-  btn.disabled=false;icon.classList.remove('spinning');
-  startCD();
+  if (total === 0) document.getElementById('nlist').innerHTML = '<div class="empty-state" style="color:var(--t3)">No se pudieron cargar noticias.<br><small>Comprueba tu conexion a internet.</small></div>';
+  btn.disabled = false; icon.classList.remove('spin');
+  startTimer();
 }
-function applyF(){if(!allNews||!allNews.length){renderList([]);return;}const q=document.getElementById('sq').value.toLowerCase();renderList(allNews.filter(n=>{const mf=activeF==='all'||n.imp===activeF;const ms=!q||n.title.toLowerCase().includes(q)||n.source.toLowerCase().includes(q)||n.mkts.some(m=>ML[m]&&ML[m].toLowerCase().includes(q));return mf&&ms;}));}
-function setF(btn,f){activeF=f;document.querySelectorAll('.fb').forEach(b=>b.className='fb');btn.className='fb '+(f==='all'?'aall':f==='c'?'acritica':f==='i'?'aimportante':'anormal');applyF();}
- 
-function renderList(news){
-  if(!news||!Array.isArray(news))news=[];
-  const list=document.getElementById('nlist');
-  if(!news.length){list.innerHTML='<div class="state" style="color:var(--t3)">Sin noticias para este filtro</div>';return;}
-  const grp={c:[],i:[],n:[]};news.forEach(n=>grp[n.imp].push(n));
-  const secs=[{k:'c',lbl:'Muy Importante',cls:'shc',cc:'r'},{k:'i',lbl:'Importante',cls:'shi',cc:'a'},{k:'n',lbl:'Comun',cls:'shn',cc:'g'}];
-  let h='';
-  secs.forEach(sec=>{
-    const items=grp[sec.k];if(!items.length)return;
-    h+='<div class="sh '+sec.cls+'">'+sec.lbl+'<span class="sh-c '+sec.cc+'">'+items.length+'</span></div>';
-    items.forEach(n=>{
-      const ri=allNews.indexOf(n);const isR=readSet.has(nk(n));
-      const ia=ri===activeIdx?' active i'+n.imp:'';
-      const bdg=n.imp==='c'?'bc':n.imp==='i'?'bi':'bn';
-      const btxt=n.imp==='c'?'CRITICA':n.imp==='i'?'IMP.':'COMUN';
-      const mts=n.mkts.map(m=>'<span class="mt '+m+'">'+(ML[m]||m)+'</span>').join(' ');
-      h+='<div class="ni '+(isR?'read':'unread')+ia+'" onclick="selNews('+ri+')"><div class="ni-top"><span class="udot '+n.imp+'"></span><span class="ni-bdg '+bdg+'">'+btxt+'</span><span class="ni-tt">'+n.title+'</span></div>'+(n.desc?'<div class="ni-ds">'+n.desc+'</div>':'')+'<div class="ni-mt"><span class="ni-tm">'+n.dt.time+' &middot; '+n.dt.date+'</span><span class="ni-dt"></span><span class="ni-sc">'+n.source+'</span><span class="ni-dt"></span>'+mts+'</div></div>';
+
+function applyFilter() {
+  if (!allNews.length) { renderNewsList([]); return; }
+  const q = (document.getElementById('sq').value || '').toLowerCase();
+  renderNewsList(allNews.filter(n => {
+    const matchF = activeFilter === 'all' || n.imp === activeFilter;
+    const matchQ = !q || n.title.toLowerCase().includes(q) || n.source.toLowerCase().includes(q) || n.markets.some(m => MARKET_LABELS[m]?.toLowerCase().includes(q));
+    return matchF && matchQ;
+  }));
+}
+function setFilter(btn, f) {
+  activeFilter = f;
+  document.querySelectorAll('.fb').forEach(b => b.className = 'fb');
+  const cls = f === 'all' ? 'on-all' : f === 'c' ? 'on-c' : f === 'i' ? 'on-i' : 'on-n';
+  btn.className = 'fb ' + cls;
+  applyFilter();
+}
+
+function renderNewsList(news) {
+  const list = document.getElementById('nlist');
+  if (!news.length) { list.innerHTML = '<div class="empty-state" style="color:var(--t3)">Sin noticias para este filtro</div>'; return; }
+  const groups = {c:[], i:[], n:[]};
+  news.forEach(n => groups[n.imp].push(n));
+  const sections = [{k:'c',label:'Muy Importante',cls:'sc'},{k:'i',label:'Importante',cls:'si'},{k:'n',label:'Comun',cls:'sn'}];
+  let html = '';
+  sections.forEach(sec => {
+    const items = groups[sec.k]; if (!items.length) return;
+    html += '<div class="sec-head ' + sec.cls + '">' + sec.label + '<span class="sec-cnt">' + items.length + '</span></div>';
+    items.forEach(n => {
+      const ri = allNews.indexOf(n);
+      const isRead = readItems.has(itemKey(n));
+      const sel = ri === activeIdx ? ' sel t' + n.imp : '';
+      const bdg = n.imp === 'c' ? 'bc' : n.imp === 'i' ? 'bi' : 'bn';
+      const btxt = n.imp === 'c' ? 'CRITICA' : n.imp === 'i' ? 'IMP.' : 'COMUN';
+      const tags = n.markets.map(m => '<span class="ntag ' + m + '">' + (MARKET_LABELS[m] || m) + '</span>').join(' ');
+      html += '<div class="nitem' + (isRead?' read':'') + sel + '" onclick="selectNews(' + ri + ')">'
+        + '<div class="ntop"><span class="ndot ' + n.imp + '"></span><span class="nbadge ' + bdg + '">' + btxt + '</span><span class="ntitle">' + n.title + '</span></div>'
+        + (n.desc ? '<div class="ndesc">' + n.desc + '</div>' : '')
+        + '<div class="nmeta"><span class="ntime">' + n.dt.time + ' &middot; ' + n.dt.date + '</span><span class="nsep"></span><span class="nsource">' + n.source + '</span><span class="nsep"></span>' + tags + '</div>'
+        + '</div>';
     });
   });
-  list.innerHTML=h;
+  list.innerHTML = html;
 }
- 
-function selNews(idx){
-  activeIdx=idx;const n=allNews[idx];if(!n)return;
-  readSet.add(nk(n));saveR();updU();applyF();
-  const mts=n.mkts.map(m=>'<span class="mt '+m+'" style="font-size:12px;padding:3px 10px">'+(ML[m]||m)+'</span>').join(' ');
-  const itxt=n.imp==='c'?'Muy Importante':n.imp==='i'?'Importante':'Comun';
-  document.getElementById('dp-empty').style.display='none';
-  const dc=document.getElementById('dp-cnt');dc.style.display='block';
-  dc.innerHTML='<div class="dc-top"><span class="dc-bdg '+n.imp+'">'+itxt+'</span><div class="dc-mkts">'+mts+'</div></div><h1 class="dc-tt">'+n.title+'</h1>'+(n.desc?'<div class="dc-ds">'+n.desc+'</div>':'')+'<div class="dc-meta"><div class="dc-mi"><strong>'+n.dt.date+'</strong></div><div class="dc-mi"><strong>'+n.dt.time+'</strong></div><div class="dc-mi"><strong>'+n.source+'</strong></div></div><div class="dc-body">'+n.body+'</div>'+(n.link&&n.link!=='#'?'<div class="dc-ft"><span class="dc-src">'+n.source+'</span><a class="dc-lnk" href="'+n.link+'" target="_blank" rel="noopener">&#8599; Ver noticia completa</a></div>':'');
-  document.getElementById('dp').scrollTop=0;
+
+function selectNews(idx) {
+  activeIdx = idx; const n = allNews[idx]; if (!n) return;
+  readItems.add(itemKey(n)); saveRead(); updateUnreadCount(); applyFilter();
+  const tags = n.markets.map(m => '<span class="ntag ' + m + '" style="font-size:12px;padding:3px 10px">' + (MARKET_LABELS[m] || m) + '</span>').join(' ');
+  const impTxt = n.imp === 'c' ? 'Muy Importante' : n.imp === 'i' ? 'Importante' : 'Comun';
+  document.getElementById('det-empty').style.display = 'none';
+  const body = document.getElementById('det-body');
+  body.style.display = 'block';
+  body.innerHTML =
+    '<div class="det-top"><span class="det-badge ' + n.imp + '">' + impTxt + '</span><div class="det-tags">' + tags + '</div></div>'
+    + '<h1 class="det-title">' + n.title + '</h1>'
+    + (n.desc ? '<div class="det-desc">' + n.desc + '</div>' : '')
+    + '<div class="det-meta"><div class="det-mi"><strong>' + n.dt.date + '</strong></div><div class="det-mi"><strong>' + n.dt.time + '</strong> (' + n.dt.ago + ')</div><div class="det-mi"><strong>' + n.source + '</strong></div></div>'
+    + '<div class="det-content">' + n.article + '</div>'
+    + (n.link && n.link !== '#' ? '<div class="det-footer"><span class="det-src">' + n.source + '</span><a class="det-link" href="' + n.link + '" target="_blank" rel="noopener">&#8599; Ver noticia completa</a></div>' : '');
+  document.getElementById('detail').scrollTop = 0;
+  document.getElementById('detail').classList.add('show');
 }
- 
-const CEVS=[
-  {day:'Hoy',time:'14:30',flag:'&#127482;&#127480;',n:'Solicitudes de desempleo',d:'Nuevas solicitudes semanales en EEUU',imp:'h',prev:'220K',est:'215K',an:'Dato clave para la Fed. Por debajo = fortaleza economica = retrasa bajadas de tipos. Por encima = presiona al dolar.',mkts:['S&P 500','Dolar USD','Bonos'],av:'Si supera 240K puede interpretarse como enfriamiento del empleo.'},
-  {day:'Hoy',time:'16:00',flag:'&#127482;&#127480;',n:'Inventarios petroleo EIA',d:'Variacion semanal de reservas de crudo',imp:'m',prev:'-2.1M',est:'-1.8M',an:'Caida de inventarios = sube petroleo. Aumento = baja petroleo.',mkts:['WTI Petroleo','Brent','XLE'],av:'Con WTI cerca de $80, dato favorable podria generar ruptura al alza.'},
-  {day:'Hoy',time:'20:00',flag:'&#127482;&#127480;',n:'Actas Fed (FOMC Minutes)',d:'Publicacion detallada de la ultima reunion de la Fed',imp:'h',prev:'—',est:'—',an:'Revelan el debate interno sobre tipos. Si muestran division, el dolar se fortalece y bolsas pueden caer.',mkts:['S&P 500','NASDAQ','Dolar DXY','Bonos 10Y'],av:'Alta volatilidad en los 30 minutos posteriores.'},
-  {day:'Manana',time:'14:30',flag:'&#127482;&#127480;',n:'NFP — Nominas no agricolas',d:'El dato macroeconomico mas importante del mundo',imp:'h',prev:'256K',est:'185K',an:'Mueve todos los mercados. Por encima del estimado = sube dolar, bajan bolsas. La desviacion respecto al estimado es lo que mas importa.',mkts:['S&P 500','NASDAQ','EUR/USD','Oro','Bonos 10Y'],av:'Volatilidad extrema los primeros 15 minutos. No operes sin stop loss.'},
-  {day:'Manana',time:'14:30',flag:'&#127482;&#127480;',n:'Tasa de desempleo EEUU',d:'Porcentaje de la poblacion activa sin empleo',imp:'h',prev:'4.1%',est:'4.1%',an:'Sale junto al NFP. Analizarlos siempre en conjunto.',mkts:['S&P 500','Dolar','Bonos'],av:'Los tres datos del informe de empleo forman la imagen completa.'},
-  {day:'Esta semana',time:'Mie 14:30',flag:'&#127482;&#127480;',n:'IPC EEUU (inflacion)',d:'El dato mas vigilado por la Reserva Federal',imp:'h',prev:'3.5%',est:'3.4%',an:'Determina la politica de tipos de la Fed. Una desviacion de 0.1% puede mover el S&P mas de 1%.',mkts:['S&P 500','NASDAQ','Oro','Dolar DXY','Bonos 10Y'],av:'Junto al NFP es el dato mas importante del mes.'},
-  {day:'Esta semana',time:'Jue 10:00',flag:'&#127466;&#127482;',n:'Decision tipos BCE',d:'El Banco Central Europeo decide sobre los tipos del euro',imp:'h',prev:'4.50%',est:'4.25%',an:'Lo que mas mueve el mercado es la rueda de prensa de Lagarde posterior a la decision.',mkts:['EUR/USD','DAX 40','IBEX 35','Bonos europeos'],av:'Rueda de prensa a las 14:45h. Maxima volatilidad EUR durante 30-60 minutos.'},
-  {day:'Esta semana',time:'Vie 09:00',flag:'&#127466;&#127480;',n:'IPC Espana',d:'Inflacion al consumidor espanola',imp:'m',prev:'3.3%',est:'3.1%',an:'Relevante para el IBEX 35 y la prima de riesgo espanola.',mkts:['IBEX 35','EUR/USD','Bonos espanoles'],av:'Dato de segundo orden para los mercados globales.'},
-  {day:'Esta semana',time:'Vie 14:30',flag:'&#127482;&#127480;',n:'PIB EEUU (revisado)',d:'Segunda revision del PIB de EEUU',imp:'h',prev:'1.6%',est:'1.3%',an:'Si la revision es grande (mas de 0.3%) puede tener impacto significativo en bonos y dolar.',mkts:['S&P 500','Dolar DXY','Bonos 10Y','Oro'],av:'Revisado al alza = reduce expectativas de bajadas de tipos.'},
+function closeDetail() {
+  document.getElementById('detail').classList.remove('show');
+  document.getElementById('det-empty').style.display = 'flex';
+  document.getElementById('det-body').style.display = 'none';
+  activeIdx = null; applyFilter();
+}
+
+// ─────────────────────────────────
+// CALENDARIO
+// ─────────────────────────────────
+const EVENTS = [
+  {day:'Hoy',time:'14:30',flag:'&#127482;&#127480;',title:'Solicitudes de desempleo (semanal)',sub:'Nuevas peticiones de subsidio por desempleo en EEUU',imp:'h',prev:'220K',est:'215K',analysis:'Dato clave para la Fed. Por debajo del estimado indica fortaleza laboral y puede retrasar bajadas de tipos. Por encima presiona al dolar e impulsa los bonos como activo refugio. El mercado reacciona inmediatamente.',markets:['S&P 500','Dolar USD','Bonos T-Note 10Y'],warning:'Si supera 240K puede desencadenar movimientos bruscos en el EUR/USD y futuros del S&P. Atencion los primeros 5 minutos.'},
+  {day:'Hoy',time:'16:00',flag:'&#127482;&#127480;',title:'Inventarios petroleo EIA',sub:'Variacion semanal de reservas de crudo en EEUU',imp:'m',prev:'-2.1M',est:'-1.8M',analysis:'Si los inventarios bajan (numero negativo o mayor caida de lo esperado) = mayor demanda = sube el petroleo. Si suben = exceso de oferta = baja el WTI. El mercado del crudo reacciona en segundos.',markets:['WTI Petroleo','Brent Crude','Acciones energeticas','XLE ETF'],warning:'Con el WTI cerca de zonas de resistencia tecnica, un dato sorpresivo puede generar movimientos de 1-2 dolares en minutos.'},
+  {day:'Hoy',time:'20:00',flag:'&#127482;&#127480;',title:'Actas Fed (FOMC Minutes)',sub:'Publicacion detallada de la ultima reunion de la Reserva Federal',imp:'h',prev:'—',est:'—',analysis:'Las actas revelan el debate interno de la Fed: cuantos miembros quieren subir, bajar o mantener tipos. Si el tono es hawkish (agresivo contra inflacion) el dolar sube y bolsas bajan. Si es dovish (suave) al reves. Los mercados buscan cualquier señal sobre el calendario de bajadas de tipos.',markets:['S&P 500','NASDAQ 100','EUR/USD','Oro','Bonos 10Y'],warning:'Alta volatilidad en los 30 minutos posteriores a las 20:00h con mercados americanos abiertos. Spreads se amplian al publicarse.'},
+  {day:'Manana',time:'14:30',flag:'&#127482;&#127480;',title:'NFP - Nominas no agricolas',sub:'Numero de empleos creados en EEUU el mes anterior. El dato mas importante del mundo.',imp:'h',prev:'256K',est:'185K',analysis:'El Non-Farm Payrolls es el dato que mas mueve los mercados globales. Por encima del estimado: economia fuerte, Fed no baja tipos, sube dolar, caen bolsas y bonos. Por debajo: Fed puede bajar tipos, baja dolar, suben bolsas y bonos. La desviacion respecto al estimado es lo que importa, no el numero absoluto.',markets:['S&P 500','NASDAQ','Dow Jones','EUR/USD','GBP/USD','Oro','WTI'],warning:'Volatilidad extrema durante los primeros 15 minutos. Spreads se disparan antes de la publicacion. NO operes en ese momento sin stop loss ajustado.'},
+  {day:'Manana',time:'14:30',flag:'&#127482;&#127480;',title:'Tasa de desempleo EEUU',sub:'Porcentaje de la poblacion activa que busca empleo sin encontrarlo',imp:'h',prev:'4.1%',est:'4.1%',analysis:'Sale al mismo tiempo que el NFP. Analizar ambos en conjunto. Si el NFP es fuerte pero el desempleo sube, puede significar que hay mas gente buscando trabajo (señal mixta). Si ambos son malos, señal clara de deterioro del mercado laboral.',markets:['S&P 500','Dolar USD','Bonos'],warning:'Este dato solo tiene impacto relevante si se desvía 0.2% o mas del estimado.'},
+  {day:'Manana',time:'14:30',flag:'&#127482;&#127480;',title:'Salarios por hora - EEUU',sub:'Variacion mensual de los salarios medios por hora en EEUU',imp:'m',prev:'0.3%',est:'0.3%',analysis:'Indicador de inflacion salarial. Si los salarios suben mas de lo esperado, la Fed tiene menos margen para bajar tipos porque podria alimentar la inflacion. Sale simultaneamente con el NFP y el desempleo.',markets:['S&P 500','Dolar USD','Bonos'],warning:'El tercer componente del informe de empleo. Los tres juntos forman la imagen completa del mercado laboral americano.'},
+  {day:'Esta semana',time:'Mie 14:30',flag:'&#127482;&#127480;',title:'IPC EEUU - Inflacion',sub:'Consumer Price Index: el dato de inflacion mas vigilado del mundo',imp:'h',prev:'3.5%',est:'3.4%',analysis:'El IPC determina directamente la politica de la Fed. Si baja hacia el 2% la Fed puede bajar tipos antes, lo que impulsa bolsas y presiona el dolar. Si se estanca o sube, la Fed mantiene tipos altos penalizando bolsas y bonos. Una desviacion de tan solo 0.1% puede mover el S&P mas de 1% en minutos.',markets:['S&P 500','NASDAQ','Oro','EUR/USD','Bonos 10Y','Dolar DXY'],warning:'Junto al NFP es el dato mas importante del mes. Los dias previos la volatilidad en opciones del S&P se dispara. Evita posiciones grandes sin cobertura el dia del dato.'},
+  {day:'Esta semana',time:'Jue 10:00',flag:'&#127466;&#127482;',title:'Decision tipos BCE',sub:'El Banco Central Europeo decide sobre los tipos de interes de la eurozona',imp:'h',prev:'4.50%',est:'4.25%',analysis:'La decision en si suele estar descontada por el mercado. Lo que mas mueve es la rueda de prensa de Lagarde a las 14:45h donde se buscan señales sobre el ritmo de futuras bajadas. Un BCE mas dovish de lo esperado debilita el euro y puede impulsar las bolsas europeas.',markets:['EUR/USD','EUR/GBP','DAX 40','IBEX 35','CAC 40','Bonos europeos'],warning:'Decision a las 14:15h CET. Rueda de prensa de Lagarde a las 14:45h. La maxima volatilidad en el EUR se produce durante la rueda de prensa, no con la decision.'},
+  {day:'Esta semana',time:'Vie 09:00',flag:'&#127466;&#127480;',title:'IPC Espana',sub:'Inflacion al consumidor en Espana - dato preliminar del INE',imp:'m',prev:'3.3%',est:'3.1%',analysis:'El IPC espanol es relevante para el IBEX 35 y los bonos soberanos. Espana ha tenido inflacion persistente, especialmente en servicios. Afecta a empresas de consumo domestico (Inditex, Melia) y utilities (Endesa, Iberdrola).',markets:['IBEX 35','EUR/USD','Bonos espanoles 10Y','Prima de riesgo'],warning:'Dato de segundo orden para mercados globales pero relevante si se desvía mucho del estimado europeo.'},
+  {day:'Esta semana',time:'Vie 14:30',flag:'&#127482;&#127480;',title:'PIB EEUU - Segunda revision',sub:'Segunda estimacion del Producto Interior Bruto de EEUU del trimestre anterior',imp:'h',prev:'1.6%',est:'1.3%',analysis:'La segunda revision puede cambiar significativamente. Una revision al alza confirma la fortaleza economica y reduce expectativas de bajadas de tipos de la Fed. Una revision a la baja reavivar temores de recesion y puede impulsar los bonos.',markets:['S&P 500','Dolar DXY','Bonos 10Y','Oro'],warning:'Dato con impacto relevante si la revision supera 0.3 puntos en cualquier direccion respecto al dato previo.'},
 ];
-let calFilter='all';
-function calFn(f,btn){calFilter=f;document.querySelectorAll('.cfb').forEach(b=>{b.className='cfb'+(b.classList.contains('hi')?' hi':'');});btn.classList.add('active');renderCal();}
-function togCal(id){document.getElementById('cev-'+id).classList.toggle('open');}
-function renderCal(){
-  const evs=calFilter==='all'?CEVS:CEVS.filter(e=>e.imp===calFilter);
-  const days=[...new Set(evs.map(e=>e.day))];
-  let h='';
-  days.forEach(day=>{
-    const items=evs.filter(e=>e.day===day);
-    h+='<div class="cal-day">'+day+'</div>';
-    items.forEach((e,i)=>{
-      const uid=day.replace(/\s/g,'')+i;
-      const lvl=e.imp==='h'?3:e.imp==='m'?2:1;
-      const dots=[0,1,2].map(j=>'<div class="ce-d'+(j<lvl?' '+e.imp:'')+'"></div>').join('');
-      const mktT=(e.mkts||[]).map(m=>'<span class="cd-mkt">'+m+'</span>').join('');
-      h+='<div class="cal-ev i'+e.imp+'" id="cev-'+uid+'" onclick="togCal(\''+uid+'\')"><div class="ce-top"><div class="ce-tm">'+e.time+'</div><div class="ce-fl">'+e.flag+'</div><div><div class="ce-nm">'+e.n+'</div><div class="ce-ds">'+e.d+'</div><div class="ce-dots">'+dots+'</div></div><div class="ce-pv"><div class="ce-pvl">Anterior</div><div class="ce-pvv">'+e.prev+'</div>'+(e.est!=='—'?'<div class="ce-pvl" style="margin-top:3px">Est.</div><div class="ce-pvv" style="color:var(--amb)">'+e.est+'</div>':'')+'</div><div class="ce-chv">&#8964;</div></div><div class="ce-det"><div class="cd-grid"><div class="cd-box"><div class="cd-lbl">Anterior</div><div class="cd-val">'+e.prev+'</div></div><div class="cd-box"><div class="cd-lbl">Estimado</div><div class="cd-val am">'+e.est+'</div></div><div class="cd-box"><div class="cd-lbl">Impacto</div><div class="cd-val" style="font-size:13px">'+(e.imp==='h'?'Alto':e.imp==='m'?'Medio':'Bajo')+'</div></div></div><div class="cd-slbl">Analisis</div><div class="cd-an">'+e.an+'</div><div class="cd-slbl">Mercados afectados</div><div class="cd-mkts">'+mktT+'</div>'+(e.av?'<div class="cd-warn">&#9888; '+e.av+'</div>':'')+'</div></div>';
+
+let calActiveFilter = 'all';
+function calFilter(f, btn) {
+  calActiveFilter = f;
+  document.querySelectorAll('.cfb').forEach(b => { b.className = 'cfb' + (b.classList.contains('hi') ? ' hi' : ''); });
+  btn.classList.add('on');
+  renderCalendar();
+}
+function toggleEvent(id) { document.getElementById('cev-' + id).classList.toggle('open'); }
+function renderCalendar() {
+  const evs = calActiveFilter === 'all' ? EVENTS : EVENTS.filter(e => e.imp === calActiveFilter);
+  const days = [...new Set(evs.map(e => e.day))];
+  let html = '';
+  days.forEach(day => {
+    const items = evs.filter(e => e.day === day);
+    html += '<div class="day-label">' + day + '</div>';
+    items.forEach((e, i) => {
+      const uid = day.replace(/\s/g,'') + i;
+      const lvl = e.imp === 'h' ? 3 : e.imp === 'm' ? 2 : 1;
+      const dots = [0,1,2].map(j => '<div class="cdot' + (j < lvl ? ' ' + e.imp : '') + '"></div>').join('');
+      const mktTags = (e.markets || []).map(m => '<span class="cdet-mkt">' + m + '</span>').join('');
+      html += '<div class="cev i' + e.imp + '" id="cev-' + uid + '" onclick="toggleEvent(\'' + uid + '\')">'
+        + '<div class="cev-row">'
+        + '<div class="ctime">' + e.time + '</div>'
+        + '<div class="cflag">' + e.flag + '</div>'
+        + '<div><div class="ctitle">' + e.title + '</div><div class="csubt">' + e.sub + '</div><div class="cdots">' + dots + '</div></div>'
+        + '<div class="cprev"><div class="cprevl">Anterior</div><div class="cprevv">' + e.prev + '</div>' + (e.est !== '—' ? '<div class="cprevl" style="margin-top:3px">Estimado</div><div class="cprevv" style="color:var(--amb)">' + e.est + '</div>' : '') + '</div>'
+        + '<div class="cchev">&#8964;</div>'
+        + '</div>'
+        + '<div class="cdet">'
+        + '<div class="cdet-grid">'
+        + '<div class="cdet-box"><div class="cdet-lbl">Dato anterior</div><div class="cdet-val">' + e.prev + '</div></div>'
+        + '<div class="cdet-box"><div class="cdet-lbl">Estimado</div><div class="cdet-val am">' + e.est + '</div></div>'
+        + '<div class="cdet-box"><div class="cdet-lbl">Impacto</div><div class="cdet-val" style="font-size:13px">' + (e.imp==='h'?'&#128308; Alto':e.imp==='m'?'&#128993; Medio':'&#128994; Bajo') + '</div></div>'
+        + '</div>'
+        + '<div class="cdet-sec">&#128200; Analisis</div><div class="cdet-an">' + e.analysis + '</div>'
+        + '<div class="cdet-sec">&#127919; Mercados afectados</div><div class="cdet-mkts">' + mktTags + '</div>'
+        + (e.warning ? '<div class="cdet-warn"><span>&#9888;&#65039;</span><span>' + e.warning + '</span></div>' : '')
+        + '</div></div>';
     });
   });
-  document.getElementById('cal-cnt').innerHTML=h||'<div class="state" style="color:var(--t3)">Sin eventos</div>';
+  document.getElementById('cal-content').innerHTML = html || '<div class="empty-state" style="color:var(--t3)">Sin eventos para este filtro</div>';
 }
-renderCal();
- 
-const GL=[
-  {t:'Accion',c:'a',d:'Pequena parte del capital de una empresa. Al comprarla eres propietario de una fraccion y tienes derecho a dividendos.'},
-  {t:'Indice bursatil',c:'a',d:'Mide el rendimiento de un conjunto de acciones. S&P 500 = 500 mayores empresas EEUU. IBEX 35 = 35 principales de Espana.'},
-  {t:'Volumen',c:'n',d:'Numero de contratos negociados. Volumen alto confirma movimientos de precio. Bajo en subida = debilidad.'},
-  {t:'Alcista / Bajista',c:'n',d:'Alcista (bull): se espera que suba. Bajista (bear): se espera que baje.'},
-  {t:'ETF',c:'e',d:'Fondo que cotiza en bolsa y replica un indice o sector. SPY = S&P 500. QQQ = NASDAQ.'},
-  {t:'Broker',c:'a',d:'Intermediario que ejecuta ordenes de compra y venta. Ejemplos: Interactive Brokers, eToro, Degiro.'},
-  {t:'Inflacion',c:'m',d:'Aumento generalizado de precios. Los bancos centrales suben tipos para combatirla.'},
-  {t:'PIB (GDP)',c:'m',d:'Suma de todo lo producido por un pais. Dos trimestres negativos = recesion tecnica.'},
-  {t:'Tipos de interes',c:'m',d:'Precio al que los bancos centrales prestan dinero. Subida = presion bajista en bolsas. Bajada = impulso a bolsas.'},
-  {t:'CFD',c:'f',d:'Contrato por Diferencia. Permite ganar o perder segun la variacion del precio sin poseer el activo. Usa apalancamiento.'},
-  {t:'Futuro',c:'f',d:'Contrato para comprar o vender un activo a precio fijado hoy en fecha futura. ES1! = S&P futures. NQ1! = NASDAQ futures.'},
-  {t:'Apalancamiento',c:'f',d:'Con 10:1 controlas 10.000 euros depositando 1.000. Multiplica ganancias Y perdidas por igual.'},
-  {t:'Margen (Margin)',c:'f',d:'Capital minimo para mantener una posicion apalancada. Si baja del minimo el broker cierra tu posicion (margin call).'},
-  {t:'Long / Short',c:'f',d:'Long = comprar esperando que suba. Short = vender esperando que baje. En CFDs puedes hacer ambas.'},
-  {t:'Stop Loss',c:'r',d:'Cierra automaticamente tu posicion al llegar a un nivel de perdida definido. Nunca operes sin stop loss.'},
-  {t:'Take Profit',c:'r',d:'Cierra automaticamente al llegar a tu objetivo de ganancia. Asegura beneficios sin vigilar la pantalla.'},
-  {t:'Spread',c:'f',d:'Diferencia entre precio de compra (ask) y venta (bid). Es el coste principal en forex y CFDs.'},
-  {t:'NFP',c:'m',d:'Non-Farm Payrolls. Dato mensual de empleo de EEUU. El mas importante para los mercados. Sale primer viernes del mes.'},
-  {t:'IPC',c:'m',d:'Indice de Precios al Consumo. Mide la inflacion. Clave para las decisiones de la Fed y BCE sobre tipos.'},
-  {t:'Fed / FOMC',c:'m',d:'Reserva Federal de EEUU. Sus decisiones sobre tipos de interes mueven todos los mercados globales.'},
-  {t:'BCE',c:'m',d:'Banco Central Europeo. Fija los tipos del euro. Afecta al EUR/USD, bolsas europeas y bonos.'},
-  {t:'Soporte / Resistencia',c:'n',d:'Soporte = nivel donde el precio rebota al alza (suelo). Resistencia = nivel donde frena su subida (techo).'},
-  {t:'Tendencia',c:'n',d:'Alcista = maximos y minimos cada vez mas altos. Bajista = maximos y minimos cada vez mas bajos.'},
-  {t:'Media Movil (MA)',c:'n',d:'Precio medio de N sesiones anteriores. MA20, MA50 y MA200 actuan como soporte/resistencia dinamico.'},
-  {t:'RSI',c:'n',d:'Oscilador 0-100. Mayor de 70 = sobrecomprado (posible caida). Menor de 30 = sobrevendido (posible rebote).'},
-  {t:'MACD',c:'n',d:'Indicador de momentum. Cruza senal hacia arriba = senal alcista. Hacia abajo = bajista.'},
-  {t:'Vela japonesa',c:'n',d:'Muestra apertura, maximo, minimo y cierre. Verde = subida. Roja = bajada. La forma da pistas sobre el siguiente movimiento.'},
-  {t:'Ruptura (Breakout)',c:'n',d:'El precio supera con fuerza un nivel clave de soporte o resistencia. Una de las senales de entrada mas usadas.'},
-  {t:'Fibonacci',c:'n',d:'Niveles de retroceso clave: 38.2%, 50% y 61.8%. El precio suele retroceder a uno antes de continuar la tendencia.'},
-  {t:'Gestion de riesgo',c:'r',d:'No arriesgar mas del 1-2% del capital total por operacion. Lo que separa traders rentables de los que quiebran.'},
-  {t:'Drawdown',c:'r',d:'Caida maxima desde un pico de capital. Un 50% de drawdown requiere ganar un 100% para recuperarse.'},
-  {t:'Position Sizing',c:'r',d:'Calculo del tamano de la posicion segun tu stop loss y capital que arriesgas. Nunca entres a ojo.'},
-  {t:'Trailing Stop',c:'r',d:'Stop loss que se mueve siguiendo al precio a tu favor. Captura tendencias largas asegurando beneficios.'},
-  {t:'Ratio R/B',c:'r',d:'Con R/B 1:3 arriesgas 100 para ganar 300. Con 1:2 puedes ser rentable acertando solo el 40%.'},
-  {t:'VIX',c:'n',d:'Indice del miedo. Mayor de 30 = panico/caidas. Menor de 15 = calma/tendencia alcista.'},
-  {t:'Activo refugio',c:'m',d:'Se aprecia en crisis. Oro, franco suizo (CHF) y yen japones (JPY) son los mas conocidos.'},
-  {t:'Risk On / Off',c:'m',d:'Risk On = inversores asumen riesgo, suben bolsas. Risk Off = huida a activos seguros como oro y bonos.'},
-  {t:'VWAP',c:'n',d:'Precio medio ponderado por volumen del dia. Precio sobre VWAP = senal alcista intraday. Bajo VWAP = bajista.'},
-  {t:'Short Squeeze',c:'n',d:'Accion muy vendida en corto sube bruscamente forzando cierres. Movimiento explosivo y rapido.'},
-  {t:'Beta',c:'a',d:'Beta mayor de 1 = mas volatil que el indice (NVDA ~1.7). Beta menor de 1 = menos volatil (JNJ ~0.5).'},
-  {t:'PER (P/E Ratio)',c:'a',d:'Precio dividido por beneficio por accion. PER 20 = pagas 20 euros por cada euro de beneficio anual.'},
-  {t:'Earnings',c:'a',d:'Resultados trimestrales de una empresa. Si baten expectativas sube. Si decepcionan baja. Alta volatilidad.'},
-  {t:'EPS',c:'a',d:'Earnings Per Share. Beneficio neto dividido entre numero de acciones. Dato clave en los resultados trimestrales.'},
-  {t:'Sector rotation',c:'a',d:'En expansion lideran tecnologia y consumo. En recesion lideran utilities y salud. Identificar la rotacion da ventaja.'},
-  {t:'Black Swan',c:'r',d:'Evento impredecible y de alto impacto. COVID-19, crisis 2008. Prepararse con gestion de riesgo solida.'},
-  {t:'FOMO',c:'r',d:'Fear Of Missing Out. Miedo a perderse una subida. Uno de los peores sesgos psicologicos del trader.'},
-  {t:'Contango',c:'f',d:'Futuros mas caros que el precio spot (situacion normal). Al reves = backwardation. Importante en petroleo.'},
-  {t:'Dark Pools',c:'n',d:'Mercados privados donde institucionales ejecutan ordenes masivas sin mover el precio publico. 30-40% del volumen en EEUU.'},
-  {t:'HFT',c:'n',d:'High Frequency Trading. Algoritmos que ejecutan miles de operaciones por segundo capturando diferencias minimas.'},
-  {t:'Cobertura (Hedge)',c:'r',d:'Estrategia para reducir riesgo usando un activo que se mueve en direccion opuesta a tu posicion.'},
-  {t:'Market Maker',c:'n',d:'Entidad que provee liquidez cotizando precios de compra y venta continuamente. Gana el spread.'},
+renderCalendar();
+
+// ─────────────────────────────────
+// GLOSARIO — 120 terminos
+// ─────────────────────────────────
+const GLOSS = [
+  // NIVEL 1 — ABSOLUTAMENTE BASICO
+  {term:'Bolsa de valores',cat:'m',def:'Mercado organizado donde se compran y venden activos financieros como acciones, bonos y ETFs. Las principales son NYSE y NASDAQ en EEUU, y el IBEX 35 en Espana.',example:'Cuando compras acciones de Apple, lo haces a traves de la bolsa NASDAQ donde Apple cotiza.',level:1},
+  {term:'Accion',cat:'a',def:'Titulo que representa una pequena parte de la propiedad de una empresa. Si una empresa emite 1.000 acciones y tu tienes 10, posees el 1% de esa empresa.',example:'Comprar 1 accion de Tesla a 200 dolares te hace propietario de una fraccion de Tesla y con derecho a dividendos.',level:1},
+  {term:'Precio de mercado',cat:'n',def:'Precio actual al que se puede comprar o vender un activo en este momento. Es el resultado del equilibrio entre compradores y vendedores en tiempo real.',example:'Si el S&P 500 cotiza a 5.300, ese es su precio de mercado actual.',level:1},
+  {term:'Comprar (Long)',cat:'f',def:'Abrir una posicion esperando que el precio suba para ganar dinero. Si compras a 100 y el precio sube a 110, ganas 10 por cada unidad.',example:'Comprar futuros del ES a 5.300 apostando a que el S&P va a subir. Si sube a 5.350 ganas 50 puntos x 50$ = 2.500$.',level:1},
+  {term:'Vender en corto (Short)',cat:'f',def:'Abrir una posicion esperando que el precio baje para ganar dinero. Vendes algo que no tienes (prestado por el broker) esperando comprarlo mas barato despues.',example:'Shortar el EURUSD a 1.10 apostando a que bajara a 1.09. Si baja ganas la diferencia.',level:1},
+  {term:'Beneficio (Profit)',cat:'n',def:'Diferencia positiva entre el precio de venta y el precio de compra. Si compras a 100 y vendes a 115, tu beneficio es 15.',example:'Compra EUR/USD a 1.0800, cierra a 1.0850. Beneficio = 50 pips.',level:1},
+  {term:'Perdida (Loss)',cat:'n',def:'Diferencia negativa entre el precio de venta y el precio de compra. Si compras a 100 y el mercado baja a 90 y cierras, tu perdida es 10.',example:'Compra NVDA a 900$, baja a 870$. Perdida no realizada = 30$ por accion.',level:1},
+  {term:'Broker',cat:'a',def:'Intermediario financiero que ejecuta tus ordenes de compra y venta en los mercados. Te da acceso a los mercados a cambio de spreads o comisiones.',example:'Interactive Brokers, eToro, Degiro, IBKR son brokers. Sin broker no puedes operar en los mercados.',level:1},
+  {term:'Cuenta de trading',cat:'n',def:'Cuenta especifica en tu broker donde depositas dinero para operar. Diferente de una cuenta bancaria normal. Los fondos se usan para comprar y vender activos.',example:'Depositas 5.000€ en tu cuenta de Interactive Brokers. Ese es tu capital disponible para operar.',level:1},
+  {term:'Orden',cat:'n',def:'Instruccion que le das a tu broker para comprar o vender un activo. Hay varios tipos: de mercado, limitada, stop, etc.',example:'Haces clic en "Comprar" en tu plataforma enviando una orden de compra al mercado.',level:1},
+
+  // NIVEL 2 — CONCEPTOS ESENCIALES
+  {term:'Stop Loss (SL)',cat:'r',def:'Orden automatica que cierra tu posicion cuando el precio llega a un nivel de perdida predefinido. Es la herramienta mas importante de gestion de riesgo. Limita tus perdidas automaticamente aunque no estes mirando la pantalla.',example:'Compras oro a 2.300$ y pones SL en 2.270$. Si el oro baja a 2.270$ la posicion se cierra automaticamente con una perdida maxima de 30$ por onza.',formula:'Perdida maxima = (Precio entrada - Stop Loss) x Tamano posicion',level:2},
+  {term:'Take Profit (TP)',cat:'r',def:'Orden automatica que cierra tu posicion cuando el precio llega a tu objetivo de ganancia. Asegura beneficios sin necesidad de vigilar el mercado constantemente.',example:'Compras EUR/USD a 1.0800 y pones TP en 1.0900. Cuando el par llega a 1.0900 la orden se cierra automaticamente con 100 pips de ganancia.',formula:'Ganancia = (Take Profit - Precio entrada) x Tamano posicion',level:2},
+  {term:'Ratio Riesgo/Beneficio (R/R)',cat:'r',def:'Relacion entre lo que arriesgas (distancia al stop) y lo que puedes ganar (distancia al take profit). Un ratio 1:2 significa que arriesgas 1 para ganar 2. Con ratio 1:2 puedes ser rentable acertando solo el 40% de las operaciones.',example:'SL = 50 puntos, TP = 150 puntos. Ratio R/R = 1:3. Si arriesgas 100€ puedes ganar 300€.',formula:'R/R = Distancia al TP / Distancia al SL',level:2},
+  {term:'CFD (Contract for Difference)',cat:'f',def:'Contrato por diferencia. Derivado financiero que te permite ganar o perder segun la variacion del precio de un activo sin poseerlo realmente. Puedes operar al alza (long) y a la baja (short) con apalancamiento. Los CFDs tienen un coste llamado swap si mantienes posiciones overnight.',example:'Operas un CFD sobre el IBEX 35. Si el IBEX sube de 11.000 a 11.100 puntos y tienes 1 lote, ganas 100 x el valor por punto del CFD.',level:2},
+  {term:'Futuro',cat:'f',def:'Contrato estandarizado para comprar o vender un activo a un precio acordado hoy en una fecha futura especifica. Los futuros cotizan en bolsas reguladas (CME, Eurex). Los mas operados son los de indices: ES1! (S&P 500), NQ1! (NASDAQ), YM1! (Dow Jones).',example:'El futuro ES1! (E-mini S&P 500) vale 50$ por punto. Si compras a 5.300 y sube a 5.350, ganas 50 x 50$ = 2.500$ por contrato.',level:2},
+  {term:'Apalancamiento',cat:'f',def:'Multiplicador que te permite controlar una posicion mayor que tu capital depositado. Con apalancamiento 10:1 y 1.000€ controlas 10.000€ de posicion. Amplifica TANTO las ganancias COMO las perdidas en la misma proporcion.',example:'Tienes 1.000€ y usas apalancamiento 10:1. Controlas 10.000€. Si el mercado sube 1% ganas 100€ (10% de tu capital). Si baja 1% pierdes 100€.',formula:'Posicion real = Capital x Apalancamiento. Un 1% de movimiento = 10% de tu capital con x10.',level:2},
+  {term:'Margen (Margin)',cat:'f',def:'Capital minimo que debes depositar para abrir y mantener una posicion apalancada. Es una garantia, no un coste. Si el mercado va en tu contra y el capital cae por debajo del margen minimo, el broker cierra tu posicion (Margin Call).',example:'Para abrir 1 contrato de ES (futuros S&P) necesitas depositar ~12.000$ de margen aunque el contrato vale ~265.000$.',level:2},
+  {term:'Spread',cat:'f',def:'Diferencia entre el precio de compra (Ask) y el precio de venta (Bid). Es el coste principal de operar en forex y CFDs. Spreads bajos = mercado liquido = mas barato operar. Los brokers ganan dinero con el spread.',example:'EUR/USD: Bid = 1.08400, Ask = 1.08402. Spread = 0.2 pips. Si compras a 1.08402 y vendes inmediatamente a 1.08400, ya tienes una perdida de 0.2 pips.',formula:'Spread = Ask - Bid',level:2},
+  {term:'Pip',cat:'f',def:'La unidad minima de movimiento de precio en forex. En pares como EUR/USD es el cuarto decimal (0.0001). En pares con JPY es el segundo decimal (0.01). Cada pip tiene un valor monetario dependiendo del tamano de tu posicion.',example:'EUR/USD sube de 1.0850 a 1.0860 = movimiento de 10 pips. Con 1 lote estandar (100.000 unidades) cada pip vale ~10$, por lo que ganas ~100$.',formula:'Valor pip = (Un pip / Tipo de cambio) x Tamano lote',level:2},
+  {term:'Lote',cat:'f',def:'Unidad estandar para medir el tamano de una posicion en forex. 1 lote estandar = 100.000 unidades de la moneda base. 1 mini lote = 10.000 unidades. 1 micro lote = 1.000 unidades. La mayoria de brokers permiten desde 0.01 lotes.',example:'Compras 0.1 lotes de EUR/USD. Controlas 10.000 euros. Cada pip vale aproximadamente 1$.',level:2},
+
+  // NIVEL 3 — ANALISIS TECNICO
+  {term:'Soporte',cat:'n',def:'Nivel de precio donde historicamente los compradores han entrado con fuerza frenando la caida. El precio "rebota" en ese nivel repetidamente. Cuantas mas veces el precio respeta un soporte, mas fuerte es.',example:'El S&P 500 ha rebotado tres veces en 5.100 puntos. Ese nivel es un soporte fuerte. Muchos traders colocarian ahi sus SL o entradas de compra.',level:3},
+  {term:'Resistencia',cat:'n',def:'Nivel de precio donde historicamente los vendedores han entrado con fuerza frenando la subida. El precio "techa" en ese nivel repetidamente. Una resistencia superada se convierte en soporte (flip).',example:'El EURUSD ha fallado 4 veces al intentar superar 1.0950. Esa zona es una resistencia. Una ruptura con volumen por encima seria señal alcista.',level:3},
+  {term:'Tendencia',cat:'n',def:'Direccion predominante del precio durante un periodo. Alcista: maximos y minimos cada vez mas altos (Higher Highs y Higher Lows). Bajista: maximos y minimos cada vez mas bajos. Lateral: el precio oscila entre soporte y resistencia sin romper ninguno.',example:'El Nasdaq lleva 6 meses con maximos y minimos ascendentes = tendencia alcista. "The trend is your friend" = operar a favor de la tendencia tiene mayor probabilidad de exito.',level:3},
+  {term:'Media Movil (MA/EMA)',cat:'n',def:'Media del precio de los ultimos N periodos. Suaviza el ruido del mercado. La MA de 20, 50 y 200 dias son las mas usadas. Actuan como soporte/resistencia dinamico. EMA = Exponential Moving Average, da mas peso a los datos recientes y reacciona mas rapido.',example:'El precio esta por encima de la MA200 = tendencia alcista de largo plazo. El precio cruza la MA50 hacia arriba = posible señal de entrada.',level:3},
+  {term:'RSI (Relative Strength Index)',cat:'n',def:'Oscilador que mide la velocidad y magnitud de los cambios de precio en una escala de 0 a 100. Por encima de 70 = sobrecomprado (posible caida). Por debajo de 30 = sobrevendido (posible rebote). No es una señal de entrada por si solo, confirma otras señales.',example:'El RSI de Apple esta en 78 mientras el precio intenta superar una resistencia = señal de debilidad. Posible rechazo.',level:3},
+  {term:'MACD',cat:'n',def:'Moving Average Convergence Divergence. Indicador de momentum que muestra la relacion entre dos medias moviles. Cuando la linea MACD cruza la linea de señal hacia arriba = posible señal alcista. Cruce hacia abajo = bajista. El histograma muestra la fuerza del movimiento.',example:'MACD cruza hacia arriba en el diario del ES mientras el precio esta sobre soporte = confirmacion de posible entrada larga.',level:3},
+  {term:'Bollinger Bands',cat:'n',def:'Tres bandas alrededor del precio: media movil central y dos bandas de desviacion estandar. Cuando el precio toca la banda superior puede estar sobrecomprado. Cuando las bandas se comprimen (squeeze) suele preceder a un movimiento explosivo.',example:'Las Bollinger Bands del Bitcoin se han comprimido durante 3 semanas. El precio rompe la banda superior con volumen = señal de posible tendencia alcista fuerte.',level:3},
+  {term:'Vela japonesa (Candlestick)',cat:'n',def:'Representacion grafica del precio que muestra apertura, maximo, minimo y cierre. El cuerpo (rectangulo) es la diferencia entre apertura y cierre. Las mechas (lineas) son el maximo y minimo del periodo. Verde/blanca = bullish (subida). Roja/negra = bearish (bajada).',example:'Una vela con cuerpo pequeño y mecha larga hacia abajo (Hammer) en zona de soporte es señal de posible giro alcista.',level:3},
+  {term:'Doji',cat:'n',def:'Vela donde el precio de apertura y cierre son casi iguales, formando una cruz. Indica indecision en el mercado. Especialmente relevante despues de una tendencia fuerte: puede señalar agotamiento y posible cambio de direccion.',example:'Una vela Doji despues de 5 velas bajistas consecutivas en zona de soporte historico puede indicar que los vendedores se estan agotando.',level:3},
+  {term:'Ruptura (Breakout)',cat:'n',def:'Cuando el precio supera un nivel clave de soporte o resistencia con volumen significativo. Es una de las señales de entrada mas populares. Un breakout falso (fakeout) ocurre cuando el precio rompe brevemente el nivel y vuelve rapido.',example:'El oro lleva semanas acumulando bajo 2.350$. Rompe ese nivel con el doble del volumen habitual = breakout valido. Muchos traders entran en la ruptura con SL por debajo del nivel.',level:3},
+  {term:'Divergencia',cat:'n',def:'Cuando el precio hace un nuevo maximo pero el indicador (RSI, MACD) no lo confirma = divergencia bajista. O el precio hace un nuevo minimo pero el indicador no = divergencia alcista. Señala debilidad en la tendencia actual.',example:'El EUR/USD hace un nuevo maximo en 1.12 pero el RSI solo llega a 65 (antes llego a 72). Divergencia bajista: la subida no tiene momentum, posible reversal.',level:3},
+  {term:'Fibonacci Retracement',cat:'n',def:'Niveles de retroceso basados en la secuencia de Fibonacci. Los mas usados: 38.2%, 50% y 61.8%. Tras un movimiento fuerte, el precio suele retroceder a uno de estos niveles antes de continuar la tendencia. Son zonas de posible entrada en la direccion de la tendencia.',example:'El NASDAQ sube de 17.000 a 19.000. Empieza a corregir. El nivel 61.8% de Fibonacci es 18.764. Muchos traders esperan ese nivel para comprar.',formula:'Nivel Fib = Maximo - (Maximo - Minimo) x Porcentaje',level:3},
+  {term:'Canal de precio',cat:'n',def:'Formacion donde el precio oscila entre dos lineas paralelas (tendencia superior e inferior). En canal alcista: se compra en la linea inferior y se vende en la superior. La ruptura del canal indica cambio de tendencia.',example:'El ES ha formado un canal alcista entre 5.200 y 5.400 durante 3 semanas. Al llegar a 5.200 de nuevo con RSI sobrevendido es una zona de entrada potencial.',level:3},
+  {term:'Volumen',cat:'n',def:'Numero de contratos o acciones negociados en un periodo. Confirma los movimientos de precio. Subida de precio CON volumen alto = movimiento valido. Subida de precio con volumen bajo = movimiento debil, posible trampa.',example:'El oro rompe resistencia en 2.350$ con el triple del volumen habitual = breakout valido. Si rompe con poco volumen hay mas probabilidad de que sea falso.',level:3},
+  {term:'VWAP (Volume Weighted Average Price)',cat:'n',def:'Precio medio ponderado por volumen del dia. Muy usado por traders institucionales para ejecutar ordenes grandes. Si el precio esta por encima del VWAP el mercado es alcista en el intraday. Por debajo, bajista. Es un nivel de referencia crucial en intraday.',example:'Abres el grafico del ES a las 10:00 CET. El precio esta 15 puntos por encima del VWAP = mercado intraday alcista, preferir longs.',level:3},
+  {term:'Perfil de Mercado',cat:'n',def:'Distribucion del volumen negociado a cada nivel de precio durante un periodo. El POC (Point of Control) es el precio con mayor volumen, actua como iman. El Value Area es donde se negocia el 70% del volumen. Herramienta avanzada muy usada en futuros.',example:'El POC del ES de ayer fue en 5.310. Hoy el precio se acerca a ese nivel de nuevo = zona de decision clave donde probablemente haya movimiento significativo.',level:3},
+
+  // NIVEL 4 — GESTION DE RIESGO
+  {term:'Gestion de riesgo',cat:'r',def:'Conjunto de reglas y tecnicas para proteger tu capital de perdidas excesivas. Incluye: usar stop loss siempre, dimensionar correctamente las posiciones, no arriesgar mas del 1-2% por operacion. Es lo que separa a los traders rentables de largo plazo de los que quiebran.',example:'Regla basica: nunca arriesgar mas del 1-2% de la cuenta por operacion. Con 10.000€, el riesgo maximo por operacion es 100-200€.',level:4},
+  {term:'Position Sizing (Tamano de posicion)',cat:'r',def:'Calculo del numero exacto de contratos o lotes a operar basado en tu stop loss y el porcentaje de capital que quieres arriesgar. ES la habilidad mas importante del trader. Nunca entres "a ojo".',example:'Cuenta: 10.000€. Riesgo: 1% = 100€. SL = 50 pips. Valor pip: 10€/pip con 1 lote. Tamano = 100€ / (50 pips x 10€/pip) = 0.2 lotes.',formula:'Lotes = (Capital x % Riesgo) / (SL en pips x Valor pip)',level:4},
+  {term:'Drawdown',cat:'r',def:'Caida maxima del capital desde un pico hasta el punto mas bajo antes de recuperarse. Un drawdown del 20% requiere ganar un 25% para recuperarse. Del 50% requiere ganar un 100%. Controlar el drawdown es fundamental para la supervivencia a largo plazo.',example:'Tu cuenta llega a 15.000€ (pico) y luego cae a 12.000€. Drawdown = 3.000€ = 20%. Necesitas ganar 25% desde ese punto para volver al maximo.',formula:'Drawdown % = (Pico - Valle) / Pico x 100',level:4},
+  {term:'Margin Call',cat:'r',def:'Alerta del broker cuando tu capital disponible cae por debajo del nivel de margen minimo requerido. Si no añades fondos o cierras posiciones, el broker las cierra automaticamente con perdida. La pesadilla de todo trader apalancado.',example:'Tienes 5.000$ y abres una posicion con margen de 4.000$. El mercado va en tu contra y tu capital cae a 1.200$ (por debajo del margen de mantenimiento de 1.500$). Margin Call: el broker cierra tu posicion.',level:4},
+  {term:'Swap / Overnight Financing',cat:'f',def:'Coste o beneficio de mantener una posicion apalancada (CFD o forex) de un dia para otro. Si el diferencial de tipos de interes entre las dos monedas es favorable pagas o cobras swap. Los lunes se cobran 3 dias de swap (fin de semana).',example:'Tienes un long EUR/USD. Si el tipo de interes del EUR es menor que el del USD, pagas un swap negativo cada noche. Con posiciones grandes mantenidas semanas puede ser un coste significativo.',level:4},
+  {term:'Slippage',cat:'r',def:'Diferencia entre el precio al que querías ejecutar una orden y el precio al que se ejecuto realmente. Ocurre en momentos de alta volatilidad (NFP, apertura de mercados) o con activos iliquidos. Puede ser positivo o negativo.',example:'Pones una orden de stop en 5.290 en el ES. Sale el NFP, el mercado cae rapidamente y tu SL se ejecuta a 5.285. El slippage es 5 puntos = 250$ de coste extra.',level:4},
+  {term:'Overtrading',cat:'r',def:'Operar en exceso: demasiadas operaciones, tamanos demasiado grandes, o buscar operaciones donde no las hay. Una de las principales causas de perdidas. Cada operacion tiene un coste (spread/comision) y no todas las condiciones de mercado son favorables para tu estrategia.',example:'Tu estrategia tiene 3-4 señales claras al dia. Si operas 15 veces al dia buscando accion, el exceso de operaciones te costara dinero.',level:4},
+  {term:'Revenge Trading',cat:'r',def:'Operar impulsivamente para recuperar perdidas recientes. La emocion reemplaza a la logica. Suele llevar a perdidas mayores. Es uno de los errores psicologicos mas comunes y destructivos.',example:'Pierdes 500€ en una operacion. En vez de seguir tu plan, abres otra operacion grande para recuperarlo rapido. Esta segunda operacion no cumple tus criterios y pierdes otros 800€.',level:4},
+  {term:'Trailing Stop',cat:'r',def:'Stop loss que se mueve automaticamente siguiendo al precio cuando va a tu favor, pero no retrocede si el precio gira. Te permite capturar tendencias largas asegurando beneficios progresivamente. El stop solo se mueve en la direccion favorable.',example:'Compras oro a 2.300$ con trailing stop de 20$. El oro sube a 2.350$, tu stop se mueve a 2.330$. Sube a 2.380$, stop en 2.360$. Si el oro cae a 2.360$ cierras con 60$ de ganancia garantizada.',level:4},
+  {term:'Cobertura (Hedge)',cat:'r',def:'Estrategia para reducir el riesgo de una posicion abierta usando otro activo correlacionado negativamente. Limita las perdidas potenciales pero tambien las ganancias maximas. Muy usada por fondos e inversores institucionales.',example:'Tienes una cartera de acciones tecnologicas. Para cubrirte ante una posible caida compras puts sobre el QQQ. Si las acciones caen, los puts ganan valor compensando parte de la perdida.',level:4},
+
+  // NIVEL 5 — MACROECONOMIA
+  {term:'Tipos de interes',cat:'m',def:'Precio al que los bancos centrales prestan dinero a los bancos comerciales. Cuando los tipos suben: el credito es mas caro, la economia se enfria, el dolar se fortalece, las bolsas y bonos suelen bajar. Cuando bajan: estimulan la economia, bolsas suelen subir, moneda se debilita.',example:'La Fed sube tipos del 5% al 5.25%. Los bonos del Tesoro americano se vuelven mas atractivos. Capitales fluyen hacia el dolar. El EUR/USD cae de 1.10 a 1.07.',level:5},
+  {term:'Inflacion / IPC',cat:'m',def:'Aumento sostenido del nivel general de precios. Se mide con el IPC (Indice de Precios al Consumo). El objetivo de la mayoria de bancos centrales es una inflacion del 2%. Inflacion alta = bancos centrales suben tipos. Inflacion baja = pueden bajar tipos.',example:'IPC en EEUU sale al 3.8% (estimado 3.5%). La Fed tardara mas en bajar tipos. El S&P 500 cae 1.5%, el dolar sube, los bonos bajan.',level:5},
+  {term:'PIB (GDP)',cat:'m',def:'Producto Interior Bruto. Valor total de todos los bienes y servicios producidos por un pais en un periodo. Mide el tamano y crecimiento de la economia. Dos trimestres consecutivos con PIB negativo = recesion tecnica.',example:'PIB de EEUU cae dos trimestres seguidos: -0.9% y -0.2%. Es recesion tecnica. Los mercados venden acciones ciclicas y compran activos refugio.',level:5},
+  {term:'Fed / Reserva Federal',cat:'m',def:'Banco central de EEUU. Fija los tipos de interes y controla la oferta monetaria americana. Sus decisiones afectan a todos los mercados mundiales. El comite FOMC se reune 8 veces al ano. Jerome Powell es su presidente actual (2024).',example:'La Fed anuncia una bajada de tipos de 0.25%. Las bolsas americanas suben, el dolar baja, el oro sube. La noticia afecta a todos los mercados mundiales.',level:5},
+  {term:'BCE (Banco Central Europeo)',cat:'m',def:'Banco central de la eurozona. Fija los tipos de interes del euro. Sus decisiones afectan al EUR/USD, las bolsas europeas y los bonos soberanos. Christine Lagarde es su presidenta desde 2019.',example:'El BCE baja tipos 0.25%. El EUR/USD cae porque los bonos europeos ofrecen menos rentabilidad. El DAX y el IBEX suben porque el credito sera mas barato para las empresas.',level:5},
+  {term:'NFP (Non-Farm Payrolls)',cat:'m',def:'Informe mensual de empleo de EEUU que excluye el sector agricola. Publicado el primer viernes de cada mes. Mide los empleos creados o destruidos. ES EL DATO MAS IMPORTANTE PARA LOS MERCADOS. Una desviacion significativa del estimado puede mover el S&P 1-2%.',example:'NFP sale en 300.000 empleos cuando el estimado era 185.000. Economia mucho mas fuerte de lo esperado. La Fed tardara mas en bajar tipos. Dolar sube, bolsas caen, bonos caen.',level:5},
+  {term:'Curva de tipos (Yield Curve)',cat:'m',def:'Grafico que muestra los tipos de interes de los bonos del Tesoro con diferentes vencimientos. Normalmente los bonos a largo plazo tienen mayor rentabilidad. Cuando los bonos cortos ofrecen mas que los largos (curva invertida) históricamente precede a una recesion.',example:'El bono americano a 2 anos ofrece 5.2% y el de 10 anos ofrece 4.8%. La curva esta invertida. En el pasado, esto ha precedido a recesiones con 12-18 meses de anticipacion.',level:5},
+  {term:'Dolar Indice (DXY)',cat:'m',def:'Indice que mide la fortaleza del dolar americano frente a una cesta de 6 monedas principales (EUR, JPY, GBP, CAD, SEK, CHF). DXY alto = dolar fuerte = presion en materias primas (oro, petroleo) y mercados emergentes. DXY bajo = dolar debil = favorece activos de riesgo.',example:'DXY sube de 102 a 106. El oro cae porque se necesitan mas dolares para comprarlo (es mas caro para los que no usan dolares). El EUR/USD cae de 1.10 a 1.06.',level:5},
+  {term:'PMI (Purchasing Managers Index)',cat:'m',def:'Encuesta mensual a directores de compras de empresas sobre actividad economica. Por encima de 50 = expansion. Por debajo de 50 = contraccion. Es un indicador adelantado, anticipa el comportamiento de la economia antes de que aparezca en el PIB.',example:'PMI manufacturero de Alemania sale en 44.5 (por debajo de 50 = contraccion). Señal de debilidad en la mayor economia de Europa. El DAX puede caer.',level:5},
+  {term:'Activo refugio',cat:'m',def:'Activo que mantiene o aumenta su valor durante periodos de incertidumbre o crisis. Se usa para proteger el capital. Los principales: oro, yen japones (JPY), franco suizo (CHF), bonos del Tesoro americano y el dolar en ciertos contextos.',example:'Estallan tensiones en Oriente Medio. Los inversores venden acciones y compran oro (sube 2%), JPY (USD/JPY cae) y bonos del Tesoro (yields bajan).',level:5},
+  {term:'Risk On / Risk Off',cat:'m',def:'Modo del mercado. Risk On: inversores buscan mayor rentabilidad asumiendo mas riesgo. Suben: bolsas, monedas emergentes, crypto, materias primas industriales. Risk Off: huida hacia la seguridad. Suben: oro, JPY, CHF, bonos del Tesoro, dolar.',example:'La Fed señala que no bajara tipos tan pronto. Modo Risk Off: el S&P cae 1.5%, el VIX sube, el JPY se aprecia, el oro sube. Los traders reducen posiciones en activos de riesgo.',level:5},
+  {term:'OPEP (OPEC)',cat:'m',def:'Organizacion de Paises Exportadores de Petroleo. Un cartel de paises productores que coordina la produccion de petroleo para influir en el precio. Sus reuniones y decisiones sobre cuotas de produccion mueven directamente el precio del WTI y Brent.',example:'La OPEP anuncia un recorte de produccion de 1 millon de barriles diarios. El WTI sube 3% inmediatamente. Las acciones de empresas petroleras suben.',level:5},
+
+  // NIVEL 6 — INSTRUMENTOS Y MERCADOS
+  {term:'S&P 500',cat:'a',def:'El indice bursatil mas importante del mundo. Recoge las 500 mayores empresas americanas por capitalizacion de mercado. Es el termometro de la economia americana y global. Se puede operar via futuros (ES1!), ETF (SPY) o CFDs.',example:'Apple, Microsoft, Amazon, Nvidia, Google son las 5 mayores ponderaciones del S&P 500. Cuando estas empresas van bien, el indice sube.',level:6},
+  {term:'NASDAQ 100',cat:'a',def:'Indice americano de las 100 mayores empresas tecnologicas y de crecimiento que cotizan en el NASDAQ. Mas volatil que el S&P 500. Se opera via futuros (NQ1!), ETF (QQQ) o CFDs.',example:'Una noticia positiva sobre IA que beneficia a Nvidia, Microsoft y Google puede subir el NASDAQ 2-3% mientras el S&P solo sube 1%.',level:6},
+  {term:'Futuros E-mini S&P (ES1!)',cat:'f',def:'El contrato de futuros mas operado del mundo. Cada punto vale 50$. Requiere margen de ~12.000$ por contrato. El micro (MES) vale 5$ por punto con menor margen. Opera 23h al dia de lunes a viernes. Muy liquido y con spreads muy bajos.',example:'Compras 1 contrato ES a 5.300. El S&P sube 50 puntos a 5.350. Ganancia = 50 puntos x 50$ = 2.500$. Si hubiera bajado 50 puntos, perdida = 2.500$.',formula:'PnL = (Precio cierre - Precio entrada) x 50$ x Num contratos',level:6},
+  {term:'Futuros E-mini NASDAQ (NQ1!)',cat:'f',def:'Futuro del NASDAQ 100. Cada punto vale 20$. Micro (MNQ) vale 2$ por punto. Mas volatil que el ES. Muy popular entre traders de sesion americana. Requiere margen de ~17.000$ por contrato.',example:'NQ sube 100 puntos en 30 minutos tras buenos resultados de Nvidia. Con 1 contrato = 100 x 20$ = 2.000$ de ganancia.',level:6},
+  {term:'EUR/USD',cat:'f',def:'El par de divisas mas operado del mundo. Mide cuantos dolares vale 1 euro. Es muy liquido, con spreads bajos. Muy sensible a los datos de la Fed, el BCE, el IPC americano y europeo. Pip = 0.0001. Con 1 lote estandar cada pip vale ~10$.',example:'BCE baja tipos 0.25% de forma sorpresiva. El EUR/USD cae de 1.0900 a 1.0850 (-50 pips). Con 1 lote: 50 pips x 10$/pip = 500$ de movimiento.',level:6},
+  {term:'Oro (XAU/USD)',cat:'f',def:'El activo refugio por excelencia. Sube en momentos de incertidumbre, inflacion alta y dolar debil. Baja cuando el dolar sube, los tipos de interes suben o hay optimismo en los mercados de riesgo. Se puede operar via futuros (GC), CFDs o ETFs (GLD).',example:'La inflacion americana sale por encima del estimado. El oro sube porque los inversores temen que la inflacion erosione el valor del dinero.',level:6},
+  {term:'WTI (West Texas Intermediate)',cat:'f',def:'Referencia del precio del petroleo americano. El precio del petroleo afecta a la inflacion, al coste de produccion de casi todo y a los mercados financieros. Se opera via futuros (CL), CFDs y ETFs (USO). Muy sensible a datos de inventarios EIA, decisiones OPEP y tensiones geopoliticas.',example:'Se publican tensiones en el Estrecho de Hormuz. El WTI sube 3$ rapidamente ya que el 20% del petroleo mundial pasa por ese punto.',level:6},
+  {term:'VIX',cat:'n',def:'Volatility Index. Mide la volatilidad implícita del S&P 500 a 30 dias basandose en los precios de las opciones. Se conoce como "el indice del miedo". VIX alto (>25) = miedo, mercado turbulento. VIX bajo (<15) = calma, mercado alcista tranquilo. Tiene correlacion INVERSA con el S&P 500.',example:'El S&P 500 cae 3% en un dia. El VIX sube de 14 a 25. Los traders ven el VIX en 25 como señal de que el panico puede estar exagerado y puede ser momento de comprar.',level:6},
+  {term:'ETF (Exchange Traded Fund)',cat:'e',def:'Fondo de inversion que cotiza en bolsa como si fuera una accion. Puede replicar un indice, sector, materia prima o estrategia. Ventajas: diversificacion instantanea, bajos costes, liquido como una accion. Los mas conocidos: SPY (S&P 500), QQQ (NASDAQ), GLD (Oro).',example:'En vez de comprar las 500 acciones del S&P 500, compras 1 accion del ETF SPY y ya tienes exposicion a las 500 empresas a la vez.',level:6},
+  {term:'Opciones (Options)',cat:'f',def:'Contrato que da el DERECHO (no la obligacion) de comprar (CALL) o vender (PUT) un activo a un precio fijo (Strike Price) antes de una fecha de vencimiento. Las calls suben cuando sube el activo subyacente. Las puts suben cuando baja. Son muy usadas para cobertura y especulacion.',example:'Compras una PUT sobre el SPY con strike 520$ para cubrirte si el mercado cae. Si el S&P cae 5%, tu PUT puede ganar valor compensando las perdidas de tu cartera.',level:6},
+  {term:'Crypto / Bitcoin',cat:'f',def:'Bitcoin (BTC) es la criptomoneda mas grande por capitalizacion. Opera 24/7, sin cierre de mercado ni dias festivos. Alta volatilidad: movimientos del 5-10% en un dia son comunes. Ciclos de 4 anos marcados por el Halving (reduccion de la emision de nuevos BTC cada 4 anos).',example:'El siguiente halving de Bitcoin reduce la emision a la mitad. Historicamente, entre 6-18 meses despues del halving el precio ha alcanzado nuevos maximos.',level:6},
+
+  // NIVEL 7 — CONCEPTOS AVANZADOS
+  {term:'Order Flow / Flujo de ordenes',cat:'n',def:'Analisis de las ordenes reales ejecutadas en el mercado. Permite ver quien esta comprando y quien esta vendiendo a cada precio y en que cantidad. Herramientas: Footprint Chart, Delta acumulado, DOM (Depth of Market). Muy usado en futuros.',example:'El ES llega a soporte en 5.300. El Footprint muestra grandes volúmenes de compra absorbiendo los vendedores. Señal de que los institucionales estan comprando = posible rebote.',level:7},
+  {term:'Zonas de liquidez',cat:'n',def:'Niveles de precio donde se acumulan muchos stops o pedidos pendientes. El precio es "atraido" hacia estas zonas para ejecutarlos antes de moverse en la direccion real. Los maximos y minimos anteriores, los redondos psicologicos y las EWP son zonas de liquidez tipicas.',example:'El EUR/USD lleva dias sin superar 1.1000 (numero redondo psicologico). Hay muchos stops de vendedores por encima. Una ruptura podria ir a buscar esos stops antes de caer.',level:7},
+  {term:'Smart Money / Dinero institucional',cat:'n',def:'Los actores grandes del mercado: bancos de inversion, hedge funds, fondos de pension. Mueven cantidades tan grandes que no pueden entrar/salir sin mover el precio. Sus estrategias son distintas a las del trader retail y a menudo van en su contra inicialmente.',example:'El Smart Money acumula posiciones largas en oro durante semanas vendiendo al mismo tiempo para mantener el precio bajo (distribución). Cuando han acumulado suficiente, dejan de vender y el precio sube rapidamente.',level:7},
+  {term:'Market Maker',cat:'n',def:'Entidad (banco, firma HFT) que provee liquidez cotizando precios de compra y venta continuamente. Gana el spread pero asume el riesgo de tener posiciones en balance. El broker de muchos traders retail ES el market maker, lo que crea un conflicto de intereses potencial.',example:'Tu broker retail actua como market maker. Cuando tu compras EUR/USD, el broker te vende directamente sin ir al mercado interbancario. Gana el spread y a veces tiene el incentivo de que pierdas.',level:7},
+  {term:'Correlacion entre activos',cat:'n',def:'Medida de como se mueven dos activos en relacion. Correlacion positiva: se mueven en la misma direccion. Negativa: en direccion opuesta. Conocer las correlaciones ayuda a gestionar el riesgo total de tu cartera. Ejemplo: Oro y DXY tienen correlacion negativa fuerte.',example:'Tienes una posicion larga en EUR/USD y otra larga en GBP/USD. Ambas tienen correlacion positiva alta. Esencialmente estas doblando el riesgo en una sola apuesta: que el dolar baje.',level:7},
+  {term:'Gamma Squeeze',cat:'n',def:'Cuando los creadores de mercado de opciones deben comprar el activo subyacente para cubrir sus posiciones en calls, empujando el precio al alza de forma acelerada y retroalimentandose. Crea movimientos explosivos en corto tiempo.',example:'El caso GameStop (2021): muchos calls comprados. Los market makers tuvieron que comprar acciones de GME para cubrirse, lo que impulso el precio de 20$ a 400$ en dias.',level:7},
+  {term:'Short Squeeze',cat:'n',def:'Cuando una accion muy vendida en corto sube bruscamente, forzando a los vendedores en corto a cerrar sus posiciones comprando, lo que acelera aun mas la subida. Especialmente peligroso si el "short interest" (% de flotante en corto) es muy alto.',example:'Una accion con 40% de su flotante vendida en corto recibe una noticia positiva inesperada. Sube 15%. Los shorts tienen que cubrir comprando, lo que la impulsa otro 20%. Total: 35% en horas.',level:7},
+  {term:'Dark Pools',cat:'n',def:'Mercados privados donde grandes institucionales ejecutan ordenes masivas fuera de las bolsas publicas para no mover el precio con su propio volumen. Representan el 30-40% del volumen total en EEUU. El volumen en dark pools puede dar pistas sobre el sentimiento institucional.',example:'Se detectan grandes volumenes de compra en dark pools sobre un sector especifico. Algunos traders utilizan esta informacion como señal de que el dinero institucional esta acumulando posiciones.',level:7},
+  {term:'HFT (High Frequency Trading)',cat:'n',def:'Trading de alta frecuencia. Algoritmos que ejecutan miles o millones de operaciones por segundo para capturar diferencias de precio minimas. Dominan el volumen intraday. Actuan como market makers y arbitrajistas. Tu competencia directa en operaciones muy rapidas.',example:'Un algoritmo HFT detecta que el ES esta 0.25 puntos mas caro en un exchange que en otro. Lo compra en uno y vende en otro en microsegundos. Miles de estas operaciones al dia generan millones de dolares.',level:7},
+  {term:'Contango y Backwardation',cat:'f',def:'Estructura de los futuros vs el precio spot. Contango: futuros mas caros que el precio spot (situacion normal). Backwardation: futuros mas baratos que el spot (indica escasez o alta demanda inmediata). Importante para entender el rollover de posiciones en futuros.',example:'El petroleo esta en backwardation: el WTI spot cotiza a 82$ pero el futuro a 3 meses cotiza a 79$. Señal de que el mercado espera que el precio del petroleo baje o que la demanda actual es muy alta.',level:7},
+  {term:'Beta',cat:'a',def:'Medida de la volatilidad de una accion en relacion al mercado (S&P 500). Beta = 1: se mueve como el mercado. Beta > 1: mas volatil (NVDA ~1.7). Beta < 1: menos volatil (JNJ ~0.5). Beta negativa: se mueve en direccion opuesta al mercado (raro, algunas coberturas).',example:'Tienes una cartera con beta de 1.5. Si el S&P cae 10%, tu cartera probablemente caera 15%. Si quieres reducir el riesgo de la cartera, añade activos con beta baja.',level:7},
+  {term:'PER (Price to Earnings Ratio)',cat:'a',def:'Precio de la accion dividido por el beneficio por accion. Indica cuantos años de beneficios actuales necesitas para recuperar el precio. PER alto = mercado espera alto crecimiento futuro o accion sobrevaloracion. PER bajo = puede ser ganga o problema oculto.',example:'Apple cotiza a 200$ con EPS de 6.57$. PER = 200/6.57 = 30.4. Pagas 30 veces los beneficios anuales actuales. El S&P 500 historicamente tiene PER de 15-20. Apple cotiza con prima.',formula:'PER = Precio accion / Beneficio por accion (EPS)',level:7},
+  {term:'FOMO (Fear Of Missing Out)',cat:'r',def:'Miedo a perderse un movimiento o oportunidad. Lleva a entrar en operaciones tarde, sin setup claro, o a tamaños demasiado grandes porque "esta subiendo mucho y no quiero quedarme fuera". Es uno de los errores psicologicos mas costosos del trading.',example:'El Bitcoin lleva 3 dias subiendo 10% cada dia. El FOMO te hace comprar justo en el techo porque "no puedes perderte esta subida". Al dia siguiente cae 15%.',level:7},
+  {term:'Sesgo de confirmacion',cat:'r',def:'Tendencia psicologica a buscar y darle mas peso a la informacion que confirma tu tesis actual, ignorando la que la contradice. Es peligroso porque te mantiene en posiciones perdedoras convencido de que tienes razon.',example:'Tienes una posicion corta en el S&P. El mercado sube pero buscas articulos que digan que va a caer para confirmar que tienes razon. Ignoras las señales alcistas evidentes. Pierdes mas de lo necesario.',level:7},
+  {term:'Black Swan',cat:'r',def:'Evento impredecible, de alto impacto y que solo parece obvio en retrospectiva. Son los eventos que pueden destruir una cuenta si no tienes gestion de riesgo adecuada. El COVID-19 (2020), la crisis financiera (2008) y el 11-S son ejemplos de Black Swans.',example:'Tienes posiciones largas grandes sin SL "porque el mercado ha estado muy estable". Un Black Swan inesperado cae el mercado 20% en 3 dias. Sin SL, las perdidas pueden ser devastadoras.',level:7},
 ];
-const CATS={f:'cat-f',a:'cat-a',n:'cat-n',r:'cat-r',m:'cat-m',e:'cat-e'};
-const CNMS={f:'futuros',a:'acciones',n:'analisis',r:'riesgo',m:'macro',e:'etf'};
-function renderGL(){
-  document.getElementById('gl-cnt').textContent=GL.length+' terminos';
-  document.getElementById('gl-grid').innerHTML=GL.map((g,i)=>{
-    const lvl=Math.min(7,Math.floor(i/7)+1);
-    const dots=[1,2,3,4,5,6,7].map(d=>'<span class="ld'+(d<=lvl?' on':'')+'"></span>').join('');
-    const ltxt=lvl<=2?'Basico':lvl<=4?'Intermedio':lvl<=6?'Avanzado':'Experto';
-    return '<div class="gc"><div class="gc-term">'+g.t+'<span class="gc-cat '+(CATS[g.c]||'cat-n')+'">'+( CNMS[g.c]||g.c)+'</span></div><div class="gc-def">'+g.d+'</div><div class="gc-lvl"><div class="lvd">'+dots+'</div><span>'+ltxt+'</span></div></div>';
+
+const CAT_NAMES = {f:'Futuros/CFD',a:'Acciones',n:'Analisis',r:'Riesgo',m:'Macro',e:'ETF',p:'Psicologia'};
+const CAT_CLASSES = {f:'gc-f',a:'gc-a',n:'gc-n',r:'gc-r',m:'gc-m',e:'gc-e',p:'gc-p'};
+
+let glossFilter = 'all';
+let glossExpanded = new Set();
+
+function renderGlossCats() {
+  const cats = ['all', ...new Set(GLOSS.map(g => g.cat))];
+  const container = document.getElementById('gl-cats');
+  container.innerHTML = cats.map(c => {
+    const label = c === 'all' ? 'Todos (' + GLOSS.length + ')' : CAT_NAMES[c] + ' (' + GLOSS.filter(g=>g.cat===c).length + ')';
+    return '<button class="gcat-btn' + (c === glossFilter ? ' on' : '') + '" onclick="setGlossFilter(\'' + c + '\')">' + label + '</button>';
   }).join('');
 }
-renderGL();
+
+function setGlossFilter(f) {
+  glossFilter = f;
+  renderGlossCats();
+  filterGloss();
+}
+
+function filterGloss() {
+  const q = (document.getElementById('gsq').value || '').toLowerCase();
+  const filtered = GLOSS.filter(g => {
+    const matchCat = glossFilter === 'all' || g.cat === glossFilter;
+    const matchQ = !q || g.term.toLowerCase().includes(q) || g.def.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+  document.getElementById('gl-count').textContent = filtered.length + ' terminos';
+  const grid = document.getElementById('gl-grid');
+  grid.innerHTML = filtered.map((g, i) => {
+    const lvl = g.level || 1;
+    const dots = [1,2,3,4,5,6,7].map(d => '<span class="ld' + (d <= lvl ? ' on' : '') + '"></span>').join('');
+    const lvlTxt = lvl <= 1 ? 'Basico' : lvl <= 3 ? 'Intermedio' : lvl <= 5 ? 'Avanzado' : 'Experto';
+    const isExp = glossExpanded.has(g.term);
+    return '<div class="gcard' + (isExp ? ' expanded' : '') + '" onclick="toggleGloss(\'' + g.term.replace(/'/g,"\\'") + '\')">'
+      + '<div class="gcard-top"><span class="gterm">' + g.term + '</span><span class="gcat-tag ' + (CAT_CLASSES[g.cat]||'gc-n') + '">' + (CAT_NAMES[g.cat]||g.cat) + '</span></div>'
+      + '<div class="gdef">' + g.def + '</div>'
+      + '<div class="gextra">'
+      + (g.formula ? '<div class="gextra-lbl">&#128290; Formula / Calculo</div><div class="gformula">' + g.formula + '</div>' : '')
+      + (g.example ? '<div class="gextra-lbl">&#127919; Ejemplo practico</div><div class="gexample">' + g.example + '</div>' : '')
+      + '</div>'
+      + '<div class="glvl"><div class="glvl-dots">' + dots + '</div><span>' + lvlTxt + '</span><span class="gchev">' + (isExp ? '&#9650;' : '&#9660;') + '</span></div>'
+      + '</div>';
+  }).join('');
+}
+
+function toggleGloss(term) {
+  if (glossExpanded.has(term)) glossExpanded.delete(term);
+  else glossExpanded.add(term);
+  filterGloss();
+}
+
+renderGlossCats();
+filterGloss();
+
+// ─────────────────────────────────
+// INIT
+// ─────────────────────────────────
 loadNews();
 </script>
 </body>
