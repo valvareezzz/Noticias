@@ -342,6 +342,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,san
   </nav>
   <div class="hright">
     <span class="clock" id="clk"></span>
+    <input id="apikey" type="password" placeholder="API Key Anthropic" title="Pega aqui tu API key de Anthropic para analisis de noticias con IA" style="font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--b2);background:var(--sf2);color:var(--t);outline:none;width:180px;transition:border-color .2s" onfocus="this.style.borderColor='var(--blu)'" onblur="this.style.borderColor='var(--b2)'" onchange="saveApiKey(this.value)"/>
     <button class="btn" id="refbtn" onclick="loadNews()">
       <span id="reficon">&#8635;</span> Actualizar
     </button>
@@ -446,6 +447,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,san
 // ─────────────────────────────────
 // NAVIGATION & CLOCK
 // ─────────────────────────────────
+// API KEY
+function saveApiKey(val) { try { localStorage.setItem('ak', val); } catch(e) {} }
+function getApiKey() { 
+  const field = document.getElementById('apikey');
+  if (field && field.value) return field.value;
+  try { return localStorage.getItem('ak') || ''; } catch(e) { return ''; }
+}
+// Load saved key on startup
+window.addEventListener('DOMContentLoaded', () => {
+  try { 
+    const saved = localStorage.getItem('ak');
+    if (saved) { const f = document.getElementById('apikey'); if(f) f.value = saved; }
+  } catch(e) {}
+});
+
 function showPage(id, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
   document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
@@ -700,6 +716,8 @@ async function selectNews(idx) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': getApiKey(),
+        'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
