@@ -368,7 +368,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,san
     <div class="live"></div>
   </div>
   <nav class="nav">
-    <button class="nb" onclick="showPage('cal',this)">
+    <button class="nb on" onclick="showPage('cal',this)">
       <span class="dot dot-a"></span><span class="nl">Calendario</span>
     </button>
     <button class="nb" onclick="showPage('sess',this)">
@@ -393,36 +393,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,san
 </div>
 
 <!-- ═══ NOTICIAS ═══ -->
-<div class="page on" id="pg-news">
-  <div class="sidebar">
-    <div class="sb-head">
-      <div class="search">
-        <span style="color:var(--t3);font-size:13px">&#128269;</span>
-        <input id="sq" placeholder="Buscar noticia, fuente, mercado..." oninput="applyFilter()">
-      </div>
-      <div class="filters">
-        <button class="fb on-all" onclick="setFilter(this,'all')">Todas</button>
-        <button class="fb" onclick="setFilter(this,'c')">
-          <span class="fdot" style="background:var(--red)"></span>Critica
-        </button>
-        <button class="fb" onclick="setFilter(this,'i')">
-          <span class="fdot" style="background:var(--amb)"></span>Importante
-        </button>
-        <button class="fb" onclick="setFilter(this,'n')">
-          <span class="fdot" style="background:var(--grn)"></span>Comun
-        </button>
-      </div>
-      <div class="rbar">
-        <span style="font-size:12px">&#8635;</span>
-        <span id="countdown">Actualizando en 5:00</span>
-        <div class="rbar-prog"><div class="rbar-fill" id="rbar-fill" style="width:100%"></div></div>
-        <span class="unread-badge" id="unread"></span>
-      </div>
-    </div>
-    <div class="nlist" id="nlist">
-      <div class="empty-state"><div class="spinner"></div>Cargando noticias...</div>
-    </div>
-  </div>
+
   <div class="detail" id="detail">
     <div class="back-btn" onclick="closeDetail()">&#8592; Volver</div>
     <div class="det-empty" id="det-empty">
@@ -434,7 +405,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,san
 </div>
 
 <!-- ═══ CALENDARIO ═══ -->
-<div class="page" id="pg-cal">
+<div class="page on" id="pg-cal">
   <div class="fullpage">
     <div class="ph">
       <h2>Calendario Economico</h2>
